@@ -82,10 +82,11 @@ export async function processUserMessage(userMessage: string, chatHistory: Conte
     if (functionCalls && functionCalls.length > 0) {
       const call = functionCalls[0];
       if (call.name === "update_cart") {
+        const args = call.args as any;
         return {
           type: "FUNCTION_CALL",
           data: call.args,
-          responseText: `Ottimo! Ho aggiunto i prodotti Ortuso al carrello per ${call.args.customerName || 'il tuo ristorante'}. Puoi procedere al controllo nella lista a destra.`
+          responseText: `Ottimo! Ho aggiunto i prodotti Ortuso al carrello per ${args.customerName || 'il tuo ristorante'}. Puoi procedere al controllo nella lista a destra.`
         };
       }
     }
