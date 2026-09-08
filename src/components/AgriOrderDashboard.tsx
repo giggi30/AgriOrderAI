@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CATALOG_PRODUCTS } from '@/lib/productsData';
 import { processUserMessage } from '@/lib/agriOrderService';
-import { Send, Bot, Sparkles, ShoppingBag, FileText, RefreshCw, CheckCheck, Minus, Trash2, Plus, X, Printer, Mail, Sun, Moon } from 'lucide-react';
+import { Send, Bot, Sparkles, ShoppingBag, FileText, RefreshCw, CheckCheck, Minus, Trash2, Plus, X, Printer, Mail, Sun, Moon, Trophy, Maximize2, PlusCircle } from 'lucide-react';
 import { Content } from '@google/generative-ai';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
@@ -48,6 +48,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   const [redemptions, setRedemptions] = useState<Record<string, number>>({});
   const [celebration, setCelebration] = useState<{ type: 'level' | 'reward', name: string } | null>(null);
   const [customerInfo, setCustomerInfo] = useState({ name: user.companyName, notes: '' });
+  const [zoomedProduct, setZoomedProduct] = useState<any | null>(null);
   const [isAiOrder, setIsAiOrder] = useState(false);
   const [activeTab, setActiveTab] = useState<'chat' | 'catalog'>('chat');
 
@@ -403,8 +404,8 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   const levelAfterOrder = getLoyaltyLevel(orders.length + 1);
 
   const REWARDS = [
-    { id: 'reward-kit', name: 'Kit Assaggio Olii Aromatizzati', basePoints: 500, icon: '🌿', description: 'Selezione di 3 mini-latte aromatizzate' },
-    { id: 'reward-dispenser', name: 'Dispenser Inox da Banco', basePoints: 1000, icon: '🍶', description: 'Elegante dispenser professionale da 3L' },
+    { id: 'reward-kit', name: 'Kit Assaggio Olii Aromatizzati', basePoints: 500, image: '/images/kit-assaggio-olii-aromatizzati.png', description: 'Selezione di bottigliette aromatizzate' },
+    { id: 'reward-dispenser', name: 'Dispenser Inox da Banco', basePoints: 1000, image: '/images/dispenser-acciaio-inox.png', description: 'Elegante dispenser professionale da 3L' },
     { id: 'reward-discount', name: 'Buono Sconto 100€', basePoints: 2000, icon: '🎫', description: 'Valido su tutto il catalogo Ortuso' },
   ].map(r => ({
     ...r,
@@ -414,35 +415,35 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   return (
     <div className="w-full h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans md:p-6 flex flex-col transition-colors duration-300">
       {/* MOBILE HEADER (Screenshot style) */}
-      <div className="md:hidden flex items-center justify-between px-6 py-4 bg-white border-b border-slate-100 sticky top-0 z-50">
+      <div className="md:hidden flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 sticky top-0 z-50 transition-colors">
         <div className="flex flex-col">
           <img
             src="/images/logo_ortuso.png"
             alt="Ortuso Logo"
-            className="h-8 w-auto object-contain brightness-100 contrast-100"
+            className={`h-8 w-auto object-contain transition-all ${isDarkMode ? 'brightness-110 contrast-125' : 'brightness-100 contrast-100'}`}
           />
           <p className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-0.5">Smart B2B Portal</p>
         </div>
         <div
           onClick={() => setIsProfileOpen(true)}
-          className="flex items-center gap-2 bg-slate-50 border border-slate-200 pl-1 pr-3 py-1 rounded-full shadow-sm active:scale-95 transition-transform"
+          className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 pl-1 pr-3 py-1 rounded-full shadow-sm active:scale-95 transition-transform"
         >
-          <div className="w-8 h-8 rounded-full bg-[#707E3D]/10 border border-[#707E3D]/20 flex items-center justify-center text-[#707E3D] text-[10px] font-black">
+          <div className="w-8 h-8 rounded-full bg-[#707E3D]/10 border border-[#707E3D]/20 flex items-center justify-center text-[#707E3D] dark:text-[#A1B06B] text-[10px] font-black">
             {user.companyName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
           </div>
-          <span className="text-xs font-bold text-slate-700">{user.companyName}</span>
+          <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{user.companyName}</span>
         </div>
       </div>
 
       {/* MOBILE TABS SWITCHER */}
-      <div className="md:hidden px-6 py-4 bg-white border-b border-slate-50 flex-none">
-        <div className="bg-slate-50 p-1.5 rounded-2xl flex border border-slate-200 shadow-inner">
+      <div className="md:hidden px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-50 dark:border-slate-800 flex-none transition-colors">
+        <div className="bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-2xl flex border border-slate-200 dark:border-slate-700 shadow-inner">
           <button
             onClick={() => setActiveTab('chat')}
             className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
               activeTab === 'chat'
-                ? 'bg-white text-indigo-600 shadow-md ring-2 ring-indigo-500/20'
-                : 'text-slate-500 hover:text-slate-700'
+                ? 'bg-white dark:bg-slate-700 text-[#707E3D] dark:text-[#A1B06B] shadow-md ring-2 ring-[#707E3D]/10'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
             }`}
           >
             <Bot className="w-4 h-4" /> Assistente AI
@@ -451,8 +452,8 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
             onClick={() => setActiveTab('catalog')}
             className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
               activeTab === 'catalog'
-                ? 'bg-white text-indigo-600 shadow-md ring-2 ring-indigo-500/20'
-                : 'text-slate-500 hover:text-slate-700'
+                ? 'bg-white dark:bg-slate-700 text-[#707E3D] dark:text-[#A1B06B] shadow-md ring-2 ring-[#707E3D]/10'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
             }`}
           >
             <ShoppingBag className="w-4 h-4" /> Catalogo
@@ -515,22 +516,22 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
       </div>
 
       {/* Main Grid 50 / 50 */}
-      <div className="max-w-[1800px] w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0 relative px-6 lg:px-6">
+      <div className="max-w-[1800px] w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0 relative px-0 lg:px-6">
 
         {/* COLONNA SINISTRA: CHATBOT AI */}
         <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl md:rounded-2xl flex flex-col overflow-hidden shadow-xl ${
           activeTab === 'chat' ? 'flex h-full' : 'hidden lg:flex'
-        } ${activeTab === 'chat' ? 'rounded-none border-0 md:border md:rounded-2xl' : ''}`}>
+        } ${activeTab === 'chat' ? 'rounded-none border-0 shadow-none md:border md:rounded-2xl md:shadow-xl' : ''}`}>
 
           {/* Mobile Chat Title Bar */}
-          <div className="md:hidden flex items-center justify-between px-6 py-4 bg-white border-b border-slate-100">
+          <div className="md:hidden flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 transition-colors">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-[#707E3D]/10 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-[#707E3D]" />
+                <Sparkles className="w-4 h-4 text-[#707E3D] dark:text-[#A1B06B]" />
               </div>
-              <h3 className="text-sm font-black text-slate-800 uppercase tracking-tighter">Ortuso AI Assistant</h3>
+              <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tighter transition-colors">Ortuso AI Assistant</h3>
             </div>
-            <button onClick={handleClearChat} className="text-[10px] font-bold text-slate-400 uppercase tracking-widest border border-slate-200 px-3 py-1 rounded-lg">Pulisci</button>
+            <button onClick={handleClearChat} className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-lg transition-colors">Pulisci</button>
           </div>
           {/* Chat Header (Desktop Only) */}
           <div className="hidden md:flex p-4 bg-slate-50/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 items-center justify-between">
@@ -556,14 +557,14 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
 
           {/* Chat Messages Area */}
           <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-3 md:space-y-6 bg-slate-50/30 dark:bg-slate-950/40 md:bg-slate-50/30 md:dark:bg-slate-950/40">
-            <div className="md:hidden absolute inset-0 bg-[#F8FAFC] pointer-events-none -z-10" />
+            <div className="md:hidden absolute inset-0 bg-[#F8FAFC] dark:bg-slate-950 pointer-events-none -z-10 transition-colors" />
             {messages.map((m, idx) => (
               <div key={idx} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {/* Mobile Style Bubble */}
-                <div className={`md:hidden max-w-[90%] p-4 rounded-3xl text-sm leading-relaxed ${
+                <div className={`md:hidden max-w-[95%] p-4 rounded-3xl text-sm leading-relaxed ${
                   m.sender === 'user'
-                    ? 'bg-[#5A6531] text-white rounded-tr-none shadow-lg'
-                    : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-100 dark:border-slate-700/60 rounded-tl-none shadow-md'
+                    ? 'bg-[#5A6531] text-white rounded-tr-none shadow-md'
+                    : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-50 dark:border-slate-700/60 rounded-tl-none shadow-sm'
                 }`}>
                   <ReactMarkdown
                     components={{
@@ -654,30 +655,36 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
           </div>
 
           {/* Quick Prompts (Mobile) */}
-          <div className="md:hidden px-6 py-4 bg-white border-t border-slate-100">
-            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Comandi Rapidi</h4>
+          <div className="md:hidden px-6 py-4 bg-white dark:bg-slate-900 border-t border-slate-50 dark:border-slate-800 transition-colors">
+            <h4 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Comandi Rapidi</h4>
             <div className="flex gap-2 overflow-x-auto no-scrollbar">
               <button
                 onClick={handleRecurringOrder}
-                className="text-xs bg-white border border-slate-200 hover:border-[#707E3D] text-slate-600 px-4 py-2.5 rounded-full whitespace-nowrap transition-all shadow-sm font-bold flex items-center gap-2 active:scale-95"
+                className="text-xs bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:border-[#707E3D]/30 text-slate-600 dark:text-slate-300 px-4 py-2.5 rounded-full whitespace-nowrap transition-all shadow-[0_2px_8px_rgba(0,0,0,0.03)] font-bold flex items-center gap-2 active:scale-95"
               >
                 <RefreshCw className="w-3.5 h-3.5 text-blue-500" /> Ultimo Ordine
               </button>
               <button
                 onClick={handleSolitoOrder}
-                className={`text-xs bg-white border px-4 py-2.5 rounded-full whitespace-nowrap transition-all shadow-sm font-bold flex items-center gap-2 active:scale-95 ${
+                className={`text-xs px-4 py-2.5 rounded-full whitespace-nowrap transition-all shadow-[0_2px_8px_rgba(0,0,0,0.03)] font-bold flex items-center gap-2 active:scale-95 ${
                   getRecurringOrder()
-                    ? 'border-amber-200 text-amber-700 hover:border-amber-400'
-                    : 'border-slate-200 text-slate-400 opacity-50'
+                    ? 'bg-white dark:bg-slate-800 border border-amber-100 dark:border-amber-900 text-amber-700 dark:text-amber-500 hover:border-amber-200'
+                    : 'bg-slate-50 dark:bg-slate-800 opacity-50 border border-slate-100 dark:border-slate-700 text-slate-400'
                 }`}
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Il Solito
               </button>
               <button
                 onClick={() => handleSend("Aggiungi 3 cartoni di Passata di Pomodoro e 2 barattoli di Salsa Tartufata")}
-                className="text-xs bg-white border border-slate-200 hover:border-[#707E3D] text-slate-600 px-4 py-2.5 rounded-full whitespace-nowrap transition-all shadow-sm font-bold flex items-center gap-2 active:scale-95"
+                className="text-xs bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:border-[#707E3D]/30 text-slate-600 dark:text-slate-300 px-4 py-2.5 rounded-full whitespace-nowrap transition-all shadow-[0_2px_8px_rgba(0,0,0,0.03)] font-bold flex items-center gap-2 active:scale-95"
               >
                 🍅 Conserve & Tartufo
+              </button>
+              <button
+                onClick={() => handleSend("Vorrei creare un nuovo comando rapido personalizzato con i miei prodotti preferiti")}
+                className="text-xs bg-[#707E3D] border border-[#707E3D] text-white px-4 py-2.5 rounded-full whitespace-nowrap transition-all shadow-lg shadow-[#707E3D]/20 font-black flex items-center gap-2 active:scale-95"
+              >
+                <PlusCircle className="w-3.5 h-3.5" /> Crea il tuo comando rapido
               </button>
             </div>
           </div>
@@ -709,14 +716,14 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
           </div>
 
           {/* Chat Input Bar (Mobile) */}
-          <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="md:hidden p-4 bg-white border-t border-slate-100 flex gap-2 mb-20 md:mb-0">
+          <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="md:hidden p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex gap-2 mb-20 md:mb-0 transition-colors">
             <div className="flex-1 relative">
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Scrivi il tuo ordine in linguaggio naturale..."
-                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-3.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#707E3D]/10 focus:border-[#707E3D] transition-all"
+                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-6 py-3.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#707E3D]/10 focus:border-[#707E3D] transition-all"
               />
               <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#5A6531] hover:bg-[#46501E] text-white w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-lg active:scale-90">
                 <Send className="w-4 h-4" />
@@ -742,31 +749,31 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
         {/* COLONNA DESTRA: CATALOGO REATTIVO */}
         <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl md:rounded-2xl flex flex-col overflow-hidden shadow-xl p-0 md:p-6 ${
           activeTab === 'catalog' ? 'flex h-full' : 'hidden lg:flex'
-        } ${activeTab === 'catalog' ? 'rounded-none border-0 md:border md:rounded-2xl' : ''}`}>
+        } ${activeTab === 'catalog' ? 'rounded-none border-0 shadow-none md:border md:rounded-2xl md:shadow-xl' : ''}`}>
 
           {/* Categoria Filters (Mobile Header Style) */}
-          <div className="md:hidden px-6 py-4 bg-white border-b border-slate-100 flex flex-col gap-4">
-            <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-              <ShoppingBag className="w-4 h-4 text-slate-600" /> Catalogo Prodotti B2B
+          <div className="md:hidden px-4 py-4 bg-white dark:bg-slate-900 border-b border-slate-50 dark:border-slate-800 flex flex-col gap-3 transition-colors">
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 flex items-center gap-2 px-2">
+              <ShoppingBag className="w-3.5 h-3.5 text-slate-500" /> Catalogo Prodotti B2B
             </h3>
-            <div className="flex gap-2 overflow-x-auto no-scrollbar scroll-smooth">
+            <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-xl border border-slate-100 dark:border-slate-700 overflow-x-auto no-scrollbar scroll-smooth">
               {[
                 { name: 'Tutti', icon: null },
-                { name: 'Olio EVO', icon: '🌿' },
-                { name: 'Aceti', icon: '🍶' },
-                { name: 'Pomodori', icon: '🍅' },
-                { name: 'Tartufo', icon: '🍄' }
+                { name: 'Olio', icon: null },
+                { name: 'Aceti', icon: null },
+                { name: 'Pomodori', icon: null },
+                { name: 'Tartufo', icon: null }
               ].map(cat => (
                 <button
                   key={cat.name}
-                  onClick={() => setActiveCategory(cat.name === 'Olio EVO' ? 'Olio' : cat.name)}
-                  className={`text-xs px-5 py-2.5 rounded-full transition-all font-bold whitespace-nowrap shadow-sm border flex items-center gap-1.5 ${
-                    (activeCategory === cat.name || (cat.name === 'Olio EVO' && activeCategory === 'Olio'))
-                      ? 'bg-[#5A6531] text-white border-[#5A6531] shadow-[#5A6531]/20'
-                      : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                  onClick={() => setActiveCategory(cat.name)}
+                  className={`flex-1 text-[11px] px-3 py-2 rounded-lg transition-all font-bold whitespace-nowrap flex items-center justify-center gap-1 ${
+                    activeCategory === cat.name
+                      ? 'bg-[#5A6531] text-white shadow-sm'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                   }`}
                 >
-                  {cat.icon && <span>{cat.icon}</span>} {cat.name}
+                  {cat.name}
                 </button>
               ))}
             </div>
@@ -793,7 +800,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
           </div>
 
           {/* Products List (Mobile Style) */}
-          <div className="flex-1 overflow-y-auto px-4 md:px-2 py-4 space-y-4 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 mb-20 md:mb-0">
+          <div className="flex-1 overflow-y-auto px-4 md:px-2 py-6 space-y-4 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 mb-20 md:mb-0">
             {filteredProducts.map(product => {
               const qty = cart[product.id] || 0;
               const isSelected = qty > 0;
@@ -801,45 +808,64 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
               return (
                 <div
                   key={product.id}
-                  className={`relative p-4 rounded-3xl border transition-all duration-300 flex items-center gap-4 ${
+                  className={`relative p-4 rounded-3xl border transition-all duration-500 flex items-center gap-3 h-[155px] ${
                     isSelected
-                      ? 'bg-white border-[#707E3D]/20 shadow-lg ring-1 ring-[#707E3D]/5'
-                      : 'bg-white border-slate-100 shadow-sm'
+                      ? 'bg-white dark:bg-slate-800 border-[#707E3D]/20 dark:border-[#707E3D]/40 shadow-[0_12px_30px_rgba(112,126,61,0.1)] ring-1 ring-[#707E3D]/5'
+                      : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 shadow-[0_4px_12px_rgba(0,0,0,0.03)]'
                   } md:hidden`}
                 >
-                  <div className="w-20 h-20 bg-slate-50 rounded-2xl p-2 flex items-center justify-center shrink-0 border border-slate-100">
+                  <div
+                    onClick={(e) => { e.stopPropagation(); setZoomedProduct(product); }}
+                    className="relative w-28 h-28 bg-slate-50 dark:bg-slate-900 rounded-2xl p-2 flex items-center justify-center shrink-0 border border-slate-100 dark:border-slate-700 cursor-pointer active:scale-95 transition-transform"
+                  >
+                    {isSelected && (
+                      <span className="absolute -top-2 -left-2 bg-[#5A6531] text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center shadow-lg z-30 border-2 border-white dark:border-slate-800 animate-in zoom-in duration-300">
+                        {qty}
+                      </span>
+                    )}
                     <img src={product.image} alt={product.name} className="h-full w-full object-contain" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between mb-1">
+                  <div className="flex-1 flex flex-col min-w-[130px] pr-2 h-full justify-center gap-2">
+                    <div>
                       {product.id.includes('bio') && (
-                        <span className="bg-emerald-50 text-emerald-600 text-[8px] font-black uppercase px-2 py-0.5 rounded-md border border-emerald-100">Bio</span>
+                        <span className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[9px] font-black uppercase px-2 py-0.5 rounded-md border border-emerald-100 dark:border-emerald-800 inline-block mb-1">Bio</span>
                       )}
+                      <h4 className="text-[16px] font-black text-slate-900 dark:text-white leading-tight">{product.name}</h4>
                     </div>
-                    <h4 className="text-sm font-black text-slate-800 leading-tight mb-1 truncate">{product.name}</h4>
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-sm font-black text-[#5A6531]">€ {product.price.toFixed(2)}</span>
-                      <span className="text-[10px] text-slate-400 font-medium">/ {product.unit}</span>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-xl font-black text-[#5A6531] dark:text-[#A1B06B]">€ {product.price.toFixed(2)}</span>
+                      <span className="text-[11px] text-slate-400 dark:text-slate-500 font-bold tracking-tight uppercase">/ {product.unit}</span>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold mt-0.5 tracking-tight">{product.packageInfo}</p>
                     </div>
-                    <p className="text-[10px] text-slate-400 mt-1 truncate">{product.packageInfo}</p>
                   </div>
-                  <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
+                  <div className="flex flex-col items-center gap-2 shrink-0 self-center w-12">
                     {qty > 0 ? (
-                      <>
-                        <button onClick={() => handleDecrease(product.id)} className="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm text-slate-600 active:scale-90 transition-transform">
-                          <Minus className="w-3.5 h-3.5" />
+                      <div className="flex flex-col items-center w-full gap-1">
+                        <button
+                          onClick={() => handleManualToggle(product.id)}
+                          className="w-9 h-9 rounded-xl bg-[#5A6531] text-white flex items-center justify-center shadow-md shadow-[#5A6531]/20 active:scale-90 transition-transform"
+                        >
+                          <Plus className="w-4 h-4" />
                         </button>
-                        <span className="w-6 text-center text-sm font-black text-slate-800">{qty}</span>
-                        <button onClick={() => handleManualToggle(product.id)} className="w-8 h-8 rounded-xl bg-[#5A6531] text-white flex items-center justify-center shadow-md active:scale-90 transition-transform">
-                          <Plus className="w-3.5 h-3.5" />
+                        <button
+                          onClick={() => handleDecrease(product.id)}
+                          className="w-9 h-9 rounded-xl bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-center shadow-sm text-slate-600 dark:text-slate-200 active:scale-90 transition-transform animate-in fade-in slide-in-from-top-2 duration-500 delay-75 fill-mode-both"
+                        >
+                          <Minus className="w-4 h-4" />
                         </button>
-                        <button onClick={() => handleRemove(product.id)} className="w-8 h-8 rounded-xl bg-white border border-rose-100 text-rose-400 flex items-center justify-center shadow-sm active:scale-90 transition-transform ml-1">
-                          <Trash2 className="w-3.5 h-3.5" />
+                        <button
+                          onClick={() => handleRemove(product.id)}
+                          className="w-9 h-9 rounded-xl bg-white dark:bg-slate-700 border border-rose-100 dark:border-rose-900/30 text-rose-400 dark:text-rose-400 flex items-center justify-center shadow-sm active:scale-90 transition-transform animate-in fade-in slide-in-from-top-4 duration-500 delay-150 mt-1 fill-mode-both"
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </button>
-                      </>
+                      </div>
                     ) : (
-                      <button onClick={() => handleManualToggle(product.id)} className="w-10 h-10 rounded-xl bg-[#5A6531] text-white flex items-center justify-center shadow-md active:scale-90 transition-transform">
-                        <Plus className="w-5 h-5" />
+                      <button
+                        onClick={() => handleManualToggle(product.id)}
+                        className="w-12 h-12 rounded-2xl bg-[#5A6531] text-white flex items-center justify-center shadow-lg shadow-[#5A6531]/20 active:scale-90 transition-transform animate-in fade-in zoom-in duration-300"
+                      >
+                        <Plus className="w-6 h-6" />
                       </button>
                     )}
                   </div>
@@ -996,25 +1022,24 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
       </div>
 
       {/* MOBILE STICKY FOOTER (Screenshot Style) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-4 flex items-center justify-between z-50 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-6 py-4 flex items-center justify-between z-50 shadow-[0_-10px_20px_rgba(0,0,0,0.02)] transition-colors">
         <div>
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Totale Ordine (IVA Excl.)</p>
-          <p className="text-xl font-black text-slate-800 tracking-tighter">€ {totalAmount.toFixed(2)}</p>
+          <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Totale Ordine (IVA Excl.)</p>
+          <p className="text-xl font-black text-slate-800 dark:text-white tracking-tighter">€ {totalAmount.toFixed(2)}</p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={handleClearCart}
             disabled={totalAmount === 0}
-            className="w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:text-rose-500 hover:border-rose-100 transition-colors bg-white disabled:opacity-30"
+            className="w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-rose-500 hover:border-rose-100 transition-colors bg-white dark:bg-slate-800 disabled:opacity-30"
           >
             <Trash2 className="w-5 h-5" />
           </button>
           <button
-            onClick={() => setIsPdfOpen(true)}
-            disabled={totalAmount === 0}
-            className="w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center text-slate-400 hover:text-[#707E3D] hover:border-[#707E3D]/20 transition-colors bg-white disabled:opacity-30"
+            onClick={() => setIsRewardsOpen(true)}
+            className="w-10 h-10 rounded-xl border border-amber-200 dark:border-amber-900/50 flex items-center justify-center text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors bg-white dark:bg-slate-800 shadow-sm shadow-amber-50 dark:shadow-none"
           >
-            <FileText className="w-5 h-5" />
+            <Trophy className="w-5 h-5" />
           </button>
           <button
             onClick={() => setIsPdfOpen(true)}
@@ -1285,20 +1310,34 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
             className="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/80 backdrop-blur-md animate-fade-in"
             onClick={() => setIsProfileOpen(false)}
           />
-          <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[2.5rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.2)] overflow-hidden flex flex-col relative border border-slate-200 dark:border-slate-800 animate-modal-enter">
-            <button onClick={() => setIsProfileOpen(false)} className="absolute top-6 right-6 p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-rose-500 transition-colors z-10">
-              <X className="w-5 h-5" />
-            </button>
+          <div className="bg-white dark:bg-slate-900 w-full md:max-w-2xl rounded-[2.5rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.2)] overflow-hidden flex flex-col relative border border-slate-200 dark:border-slate-800 animate-modal-enter max-h-[90vh] overflow-y-auto">
+            <div className="absolute top-6 right-6 flex items-center gap-2 z-10">
+              <button
+                onClick={() => {
+                  const newMode = !isDarkMode;
+                  setIsDarkMode(newMode);
+                  localStorage.setItem('theme', newMode ? 'dark' : 'light');
+                  if (newMode) document.documentElement.classList.add('dark');
+                  else document.documentElement.classList.remove('dark');
+                }}
+                className="p-2.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-amber-500 transition-colors"
+              >
+                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+              <button onClick={() => setIsProfileOpen(false)} className="p-2.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-rose-500 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-            <div className="p-8">
-              <div className="flex items-center gap-6 mb-8">
-                <div className="w-24 h-24 rounded-2xl bg-[#707E3D]/10 border-2 border-[#707E3D]/20 flex items-center justify-center overflow-hidden">
+            <div className="p-6 md:p-8">
+              <div className="flex flex-col md:flex-row items-center md:items-start text-center md:text-left gap-4 md:gap-6 mb-8">
+                <div className="w-24 h-24 rounded-2xl bg-[#707E3D]/10 border-2 border-[#707E3D]/20 flex items-center justify-center overflow-hidden shrink-0">
                   <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.companyName)}&background=707E3D&color=fff&size=128`} className="w-full h-full object-cover" />
                 </div>
-                <div>
-                  <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">{user.companyName}</h3>
-                  <p className="text-slate-500 dark:text-slate-400 font-medium">Account ID: <span className="font-mono text-xs">{user.id.substring(0, 8)}</span></p>
-                  <div className="mt-2 flex items-center gap-2">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter break-words leading-tight">{user.companyName}</h3>
+                  <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">Account ID: <span className="font-mono text-xs">{user.id.substring(0, 8)}</span></p>
+                  <div className="mt-2 flex items-center justify-center md:justify-start gap-2">
                     <span className="px-3 py-1 bg-[#707E3D]/10 text-[#707E3D] dark:text-[#A1B06B] text-[10px] font-black uppercase rounded-full border border-[#707E3D]/20">
                       Ristorazione Partner
                     </span>
@@ -1307,43 +1346,43 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
               </div>
 
               {/* Fidelity Card Premium */}
-              <div className={`relative w-full h-48 rounded-[2rem] p-8 overflow-hidden shadow-2xl transition-all duration-700 ${currentLevel.color} text-white group`}>
+              <div className={`relative w-full h-44 md:h-48 rounded-[2rem] p-6 md:p-8 overflow-hidden shadow-2xl transition-all duration-700 ${currentLevel.color} text-white group mb-6 md:mb-8`}>
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl group-hover:bg-white/20 transition-all duration-1000"></div>
                 <div className="relative z-10 flex flex-col h-full justify-between">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">Ortuso Fidelity Card</p>
-                      <h4 className="text-3xl font-black tracking-tighter italic">Livello {currentLevel.name}</h4>
+                      <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">Ortuso Fidelity Card</p>
+                      <h4 className="text-2xl md:text-3xl font-black tracking-tighter italic leading-none mt-1">Livello {currentLevel.name}</h4>
                     </div>
                   </div>
                   <div className="flex justify-between items-end">
                     <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-1">Punti Accumulati</p>
-                      <p className="text-4xl font-black">{loyaltyPoints}</p>
+                      <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest opacity-80 mb-0.5">Punti Accumulati</p>
+                      <p className="text-3xl md:text-4xl font-black">{loyaltyPoints}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-1">Sconto Riservato</p>
-                      <p className="text-3xl font-black italic">{currentLevel.discountPct}%</p>
+                      <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest opacity-80 mb-0.5">Sconto Riservato</p>
+                      <p className="text-2xl md:text-3xl font-black italic">{currentLevel.discountPct}%</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Badge & Statistiche */}
-              <div className="mt-8 grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-slate-50 dark:bg-slate-950 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
                   <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">I Tuoi Badge</h5>
                   <div className="flex flex-wrap gap-2">
                     {badges.length > 0 ? badges.map(b => (
                       <div key={b} className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-s font-bold text-[#707E3D] dark:text-[#A1B06B] shadow-sm">
                         {b === 'Cliente Storico' ? (
-                          <img src="/images/customer-loyalty.png" alt="Loyalty Icon" className="w-6 h-6 object-contain" />
+                          <img src="/images/customer-loyalty.png" alt="Loyalty Icon" className="w-5 h-5 object-contain" />
                         ) : b === 'Top Ordini EVO' ? (
-                          <img src="/images/olive-oil-icon.png" alt="EVO Icon" className="w-6 h-6 object-contain" />
+                          <img src="/images/olive-oil-icon.png" alt="EVO Icon" className="w-5 h-5 object-contain" />
                         ) : (
-                          <Sparkles className="w-6 h-6" />
+                          <Sparkles className="w-5 h-5" />
                         )}
-                        {b}
+                        <span className="text-xs">{b}</span>
                       </div>
                     )) : (
                       <p className="text-xs text-slate-500 italic">Inizia ad ordinare per sbloccare badge esclusivi!</p>
@@ -1355,7 +1394,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                   {currentLevel.next ? (
                     <div>
                       <div className="flex justify-between text-xs font-bold mb-2">
-                        <span>Ordini Mancanti</span>
+                        <span className="text-slate-500">Ordini Mancanti</span>
                         <span className={currentLevel.textColor}>{currentLevel.next - orders.length}</span>
                       </div>
                       <div className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -1364,7 +1403,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                           style={{ width: `${(orders.length / currentLevel.next) * 100}%` }}
                         />
                       </div>
-                      <p className="text-[10px] text-slate-500 mt-2 font-medium">Al raggiungimento di {currentLevel.next} ordini totali sbloccherai il livello {getLoyaltyLevel(currentLevel.next).name}.</p>
+                      <p className="text-[10px] text-slate-500 mt-3 font-medium leading-relaxed">Al raggiungimento di {currentLevel.next} ordini totali sbloccherai il livello {getLoyaltyLevel(currentLevel.next).name}.</p>
                     </div>
                   ) : (
                     <p className="text-xs text-[#707E3D] font-bold uppercase tracking-tighter">🏆 Hai raggiunto il massimo livello: {currentLevel.name}!</p>
@@ -1373,44 +1412,48 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
               </div>
             </div>
           </div>
-        </div>
+          </div>
       )}
 
       {/* OVERLAY CATALOGO PREMI */}
       {isRewardsOpen && (
         <div className="fixed inset-0 z-[100] bg-slate-900/60 dark:bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in zoom-in duration-300">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col relative border border-slate-200 dark:border-slate-800">
-            <button onClick={() => setIsRewardsOpen(false)} className="absolute top-6 right-6 p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-rose-500 transition-colors z-10">
+          <div className="bg-white dark:bg-slate-900 w-full md:max-w-4xl h-full max-h-[90vh] md:h-auto rounded-3xl shadow-2xl overflow-hidden flex flex-col relative border border-slate-200 dark:border-slate-800">
+            <button onClick={() => setIsRewardsOpen(false)} className="absolute top-4 right-4 md:top-6 md:right-6 p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-rose-500 transition-colors z-10">
               <X className="w-5 h-5" />
             </button>
 
-            <div className="p-8 bg-[#707E3D]/5 border-b border-[#707E3D]/10">
-              <h3 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter flex items-center gap-3">
-                <Sparkles className="w-8 h-8 text-amber-500" /> Catalogo Premi B2B Ortuso
+            <div className="p-6 md:p-8 bg-[#707E3D]/5 border-b border-[#707E3D]/10">
+              <h3 className="text-xl md:text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter flex items-center gap-3">
+                <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-amber-500" /> Catalogo Premi B2B Ortuso
               </h3>
-              <p className="text-slate-600 dark:text-slate-400 mt-1">Utilizza i tuoi punti fedeltà per riscattare premi esclusivi per la tua attività.</p>
+              <p className="text-[11px] md:text-sm text-slate-600 dark:text-slate-400 mt-1">Utilizza i tuoi punti fedeltà per riscattare premi esclusivi per la tua attività.</p>
             </div>
 
-            <div className="p-8 overflow-y-auto max-h-[60vh] grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-4 md:p-8 overflow-y-auto flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
               {REWARDS.map(reward => {
                 const canAfford = loyaltyPoints >= reward.points;
                 return (
-                  <div key={reward.id} className={`p-6 rounded-2xl border transition-all duration-500 flex flex-col ${
+                  <div key={reward.id} className={`p-5 md:p-6 rounded-2xl border transition-all duration-500 flex flex-col ${
                     canAfford
                       ? 'bg-white dark:bg-slate-900 border-[#707E3D]/30 shadow-xl hover:-translate-y-2'
                       : 'bg-slate-50 dark:bg-slate-950 border-slate-100 dark:border-slate-800 opacity-80'
                   }`}>
-                    <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-4xl mb-4">
-                      {reward.icon}
+                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-3xl md:text-4xl mb-4 overflow-hidden">
+                      {reward.image ? (
+                        <img src={reward.image} alt={reward.name} className="w-full h-full object-cover" />
+                      ) : (
+                        reward.icon
+                      )}
                     </div>
                     <div className="mb-4">
-                      <h4 className="text-lg font-black text-slate-900 dark:text-white leading-tight uppercase tracking-tight">{reward.name}</h4>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{reward.description}</p>
+                      <h4 className="text-base md:text-lg font-black text-slate-900 dark:text-white leading-tight uppercase tracking-tight">{reward.name}</h4>
+                      <p className="text-[10px] md:text-xs text-slate-500 dark:text-slate-400 mt-1">{reward.description}</p>
                     </div>
                     <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                       <div className="flex flex-col">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Punti</span>
-                        <span className={`text-xl font-black ${canAfford ? 'text-[#707E3D] dark:text-[#A1B06B]' : 'text-slate-400'}`}>
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Punti</span>
+                        <span className={`text-lg md:text-xl font-black ${canAfford ? 'text-[#707E3D] dark:text-[#A1B06B]' : 'text-slate-400'}`}>
                           {reward.points}
                         </span>
                       </div>
@@ -1429,7 +1472,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                           setTimeout(() => setCelebration(null), 5000);
                           setIsRewardsOpen(false);
                         }}
-                        className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                           canAfford
                             ? 'bg-[#707E3D] hover:bg-[#5A6531] text-white shadow-lg'
                             : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
@@ -1443,19 +1486,43 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
               })}
             </div>
 
-            <div className="p-8 bg-slate-50 dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">I Tuoi Punti</p>
-                  <p className="text-2xl font-black text-slate-900 dark:text-white leading-none">{loyaltyPoints}</p>
+            <div className="p-6 md:p-8 bg-slate-50 dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6">
+              <div className="flex items-center gap-4 w-full md:w-auto">
+                <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm min-w-[100px] text-center">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">I Tuoi Punti</p>
+                  <p className="text-xl md:text-2xl font-black text-slate-900 dark:text-white leading-none">{loyaltyPoints}</p>
                 </div>
-                <div className="w-32 h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-amber-500" style={{ width: `${Math.min(100, (loyaltyPoints / Math.max(1, ...REWARDS.map(r => r.points))) * 100)}%` }} />
+                <div className="flex-1 md:w-48 h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] transition-all duration-1000" style={{ width: `${Math.min(100, (loyaltyPoints / Math.max(1, ...REWARDS.map(r => r.points))) * 100)}%` }} />
                 </div>
               </div>
-              <p className="text-xs text-slate-500 italic max-w-xs text-right font-medium">
+              <p className="text-[10px] md:text-xs text-slate-500 italic md:max-w-xs text-center md:text-right font-medium leading-relaxed">
                 I premi fisici verranno consegnati insieme al tuo prossimo ordine logistico gestito da Ortuso.
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* OVERLAY ZOOM IMMAGINE PRODOTTO */}
+      {zoomedProduct && (
+        <div
+          className="fixed inset-0 z-[200] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-500"
+          onClick={() => setZoomedProduct(null)}
+        >
+          <button
+            className="absolute top-6 right-6 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors border border-white/20"
+            onClick={() => setZoomedProduct(null)}
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <div
+            className="relative max-w-2xl w-full bg-white rounded-[40px] p-8 md:p-12 shadow-2xl animate-in zoom-in-50 duration-700 ease-out"
+            onClick={e => e.stopPropagation()}
+          >
+            <img src={zoomedProduct.image} alt={zoomedProduct.name} className="w-full h-auto object-contain max-h-[70vh] rounded-3xl" />
+            <div className="mt-8 text-center">
+              <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">{zoomedProduct.packageInfo}</p>
+              <h3 className="text-2xl font-black text-[#46501E] tracking-tight">{zoomedProduct.name}</h3>
             </div>
           </div>
         </div>
