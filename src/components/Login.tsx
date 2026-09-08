@@ -17,38 +17,45 @@ export default function Login({ onLogin }: LoginProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    setTimeout(() => {
+    try {
       if (mode === 'register') {
         if (password !== confirmPassword) {
           setError('Le password non coincidono');
           setLoading(false);
           return;
         }
-        const result = registerUser(companyName, email, password);
+        const result = await registerUser(companyName, email, password);
         if (result.success) {
           // Dopo la registrazione, facciamo il login automatico
-          const loginResult = loginUser(email, password);
+          const loginResult = await loginUser(email, password);
           if (loginResult.success && loginResult.user) {
             onLogin(loginResult.user);
+          } else {
+            setMode('login'); // Vai al login se la registrazione è andata ma serve conferma email
+            setError('Registrazione effettuata. Effettua il login.');
           }
         } else {
           setError(result.message);
         }
       } else {
-        const result = loginUser(email, password);
+        const result = await loginUser(email, password);
         if (result.success && result.user) {
           onLogin(result.user);
         } else {
           setError(result.message);
         }
       }
+    } catch (err) {
+      setError('Si è verificato un errore improvviso');
+      console.error(err);
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   return (

@@ -7,7 +7,8 @@ import { Send, Bot, Sparkles, ShoppingBag, FileText, RefreshCw, CheckCheck, Minu
 import { Content } from '@google/generative-ai';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
-import { User as AuthUser } from '@/lib/auth';
+import { User as AuthUser, updateLoyalty as updateLoyaltyAction } from '@/lib/auth';
+import { saveOrder as saveOrderAction, getOrders as getOrdersAction } from '@/lib/orderService';
 
 interface Message {
   sender: 'user' | 'ai';
@@ -32,7 +33,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Stato del carrello condiviso (Single Source of Truth)
   const [cart, setCart] = useState<Record<string, number>>({}); // es: { 'chianti-docg': 5, 'olio-evo': 2 }
@@ -55,7 +56,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   useEffect(() => {
     // Inizializza il tema al caricamento
     const savedTheme = localStorage.getItem('theme');
-    const initialDark = savedTheme ? savedTheme === 'dark' : true;
+    const initialDark = savedTheme ? savedTheme === 'dark' : false;
     setIsDarkMode(initialDark);
     if (initialDark) {
       document.documentElement.classList.add('dark');
@@ -63,41 +64,48 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
       document.documentElement.classList.remove('dark');
     }
 
-    // Carica lo storico ordini
-    const savedOrders = localStorage.getItem(`orders_${user.id}`);
-    if (savedOrders) {
-      try {
-        setOrders(JSON.parse(savedOrders));
-      } catch (e) {
-        console.error("Errore nel caricamento ordini", e);
-      }
+    // Inizializza loyalty dai dati utente (già caricati da Supabase)
+    if (user) {
+      setLoyaltyPoints(user.loyaltyPoints || 0);
+      setBadges(user.badges || []);
+      setRedemptions(user.redemptions || {});
     }
 
-    // Carica loyalty points e badge
-    const savedLoyalty = localStorage.getItem(`loyalty_${user.id}`);
-    if (savedLoyalty) {
-      try {
-        const data = JSON.parse(savedLoyalty);
-        setLoyaltyPoints(data.points || 0);
-        setBadges(data.badges || []);
-        setRedemptions(data.redemptions || {});
-      } catch (e) {
-        console.error("Errore nel caricamento loyalty", e);
+    // Carica lo storico ordini da Supabase
+    async function loadOrders() {
+      const dbOrders = await getOrdersAction(user.id);
+      if (dbOrders) {
+        setOrders(dbOrders.map(o => ({
+          id: o.id,
+          date: new Date(o.created_at).toLocaleDateString(),
+          items: o.items,
+          total: Number(o.total_amount)
+        })));
       }
     }
-  }, [user.id]);
+    loadOrders();
+  }, [user]);
 
-  const saveLoyalty = (points: number, newBadges: string[], newRedemptions: Record<string, number> = redemptions) => {
+  const saveLoyalty = async (points: number, newBadges: string[], newRedemptions: Record<string, number> = redemptions) => {
     setLoyaltyPoints(points);
     setBadges(newBadges);
     setRedemptions(newRedemptions);
-    localStorage.setItem(`loyalty_${user.id}`, JSON.stringify({ points, badges: newBadges, redemptions: newRedemptions }));
+
+    // Persistenza su Supabase tramite Server Action
+    await updateLoyaltyAction(user.id, points, newBadges, newRedemptions);
   };
 
-  const saveOrder = (newOrder: Order) => {
+  const saveOrder = async (newOrder: Order) => {
+    // 1. Salva l'ordine su Supabase
+    const { success, order: savedDbOrder } = await saveOrderAction(user.id, newOrder.total, newOrder.items);
+
+    if (!success) {
+      console.error("Errore durante il salvataggio dell'ordine su DB");
+      // Opzionale: gestire il fallback o errore UI
+    }
+
     const updatedOrders = [newOrder, ...orders];
     setOrders(updatedOrders);
-    localStorage.setItem(`orders_${user.id}`, JSON.stringify(updatedOrders));
 
     // Update loyalty points (1€ = 1 point)
     const pointsGained = Math.floor(newOrder.total);
@@ -117,7 +125,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
       newBadges.push('Top Ordini EVO');
     }
 
-    saveLoyalty(newTotalPoints, newBadges);
+    await saveLoyalty(newTotalPoints, newBadges);
 
     const kitThreshold = 500 * ((redemptions['reward-kit'] || 0) + 1);
     const dispenserThreshold = 1000 * ((redemptions['reward-dispenser'] || 0) + 1);
