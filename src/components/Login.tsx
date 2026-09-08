@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Bot, Lock, User, ArrowRight, Building, Mail } from 'lucide-react';
+import { Bot, Lock, User, ArrowRight, Building, Mail, Eye, EyeOff } from 'lucide-react';
 import { loginUser, registerUser, User as AuthUser } from '@/lib/auth';
 
 interface LoginProps {
@@ -17,6 +17,9 @@ export default function Login({ onLogin }: LoginProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,14 +68,14 @@ export default function Login({ onLogin }: LoginProps) {
       <div className="w-full max-w-md">
         {/* Logo & Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-[#707E3D]/10 border border-[#707E3D]/20 mb-4 shadow-sm">
+          <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl bg-[#707E3D]/10 border border-[#707E3D]/20 mb-4 shadow-sm">
             <img
               src="/images/logo_ortuso.png"
               alt="Ortuso Logo"
-              className="w-16 h-16 object-contain"
+              className="w-20 h-20 object-contain"
             />
           </div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Ortuso</h1>
+
           <p className="text-slate-500 mt-2 font-medium">B2B Smart Portal - {mode === 'login' ? 'Accesso Riservato' : 'Registrazione Azienda'}</p>
         </div>
 
@@ -138,13 +141,20 @@ export default function Login({ onLogin }: LoginProps) {
                   <Lock className="w-5 h-5" />
                 </div>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#707E3D] focus:border-transparent transition-all"
+                  className="block w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#707E3D] focus:border-transparent transition-all"
                   placeholder="••••••••"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
             </div>
 
@@ -156,21 +166,33 @@ export default function Login({ onLogin }: LoginProps) {
                     <Lock className="w-5 h-5" />
                   </div>
                   <input
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#707E3D] focus:border-transparent transition-all"
+                    className="block w-full pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#707E3D] focus:border-transparent transition-all"
                     placeholder="••••••••"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
               </div>
             )}
 
             {mode === 'login' && (
               <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center text-slate-600 font-medium">
-                  <input type="checkbox" className="rounded border-slate-300 bg-white text-[#707E3D] focus:ring-[#707E3D] mr-2" />
+                <label className="flex items-center text-slate-600 font-medium cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="rounded border-slate-300 bg-white text-[#707E3D] focus:ring-[#707E3D] mr-2 cursor-pointer"
+                  />
                   Ricordami
                 </label>
                 <a href="#" className="text-[#707E3D] hover:text-[#5A6531] font-bold">Password dimenticata?</a>
