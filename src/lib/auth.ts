@@ -1,6 +1,6 @@
 "use server";
 
-import { supabase } from './supabase';
+import { createClient } from './supabase';
 import { cookies } from 'next/headers';
 
 /**
@@ -16,6 +16,7 @@ export interface User {
 }
 
 export const registerUser = async (companyName: string, email: string, password: string): Promise<{ success: boolean, message: string }> => {
+  const supabase = await createClient();
   try {
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -39,6 +40,7 @@ export const registerUser = async (companyName: string, email: string, password:
 };
 
 export const loginUser = async (email: string, password: string): Promise<{ success: boolean, user?: User, message: string }> => {
+  const supabase = await createClient();
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -46,6 +48,9 @@ export const loginUser = async (email: string, password: string): Promise<{ succ
     });
 
     if (error) {
+      if (error.message.includes('Email not confirmed')) {
+        return { success: false, message: 'Email non confermata. Controlla la tua posta per il link di attivazione.' };
+      }
       return { success: false, message: 'Credenziali non valide' };
     }
 
@@ -77,6 +82,7 @@ export const loginUser = async (email: string, password: string): Promise<{ succ
 };
 
 export const updateLoyalty = async (userId: string, points: number, badges: string[], redemptions: Record<string, number>): Promise<{ success: boolean }> => {
+  const supabase = await createClient();
   try {
     const { error } = await supabase
       .from('profiles')
@@ -96,10 +102,7 @@ export const updateLoyalty = async (userId: string, points: number, badges: stri
 };
 
 export const getSessionUser = async (): Promise<User | null> => {
-  // Nota: In Next.js App Router, Supabase Auth consiglia l'uso di @supabase/auth-helpers-nextjs
-  // ma per semplicità e coerenza con il piano "Server Actions", faremo una verifica tramite il client.
-  // In un caso reale, si userebbero i cookie per persistere la sessione.
-
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) return null;
@@ -121,5 +124,6 @@ export const getSessionUser = async (): Promise<User | null> => {
 };
 
 export const logout = async () => {
+  const supabase = await createClient();
   await supabase.auth.signOut();
 };

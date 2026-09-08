@@ -1,6 +1,6 @@
 "use server";
 
-import { supabase } from './supabase';
+import { createClient } from './supabase';
 
 export interface Order {
   id: string;
@@ -12,6 +12,7 @@ export interface Order {
 }
 
 export const saveOrder = async (userId: string, totalAmount: number, items: Record<string, number>): Promise<{ success: boolean, order?: Order }> => {
+  const supabase = await createClient();
   try {
     const { data, error } = await supabase
       .from('orders')
@@ -35,6 +36,7 @@ export const saveOrder = async (userId: string, totalAmount: number, items: Reco
 };
 
 export const getOrders = async (userId: string): Promise<Order[]> => {
+  const supabase = await createClient();
   try {
     const { data, error } = await supabase
       .from('orders')

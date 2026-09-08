@@ -16,10 +16,12 @@ export default function Login({ onLogin }: LoginProps) {
   const [companyName, setCompanyName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
 
     try {
@@ -37,7 +39,7 @@ export default function Login({ onLogin }: LoginProps) {
             onLogin(loginResult.user);
           } else {
             setMode('login'); // Vai al login se la registrazione è andata ma serve conferma email
-            setError('Registrazione effettuata. Effettua il login.');
+            setSuccess('Registrazione effettuata. Controlla la mail di verifica.');
           }
         } else {
           setError(result.message);
@@ -77,8 +79,18 @@ export default function Login({ onLogin }: LoginProps) {
         {/* Login/Register Card */}
         <div className="bg-white border border-slate-200 p-8 rounded-3xl shadow-xl shadow-slate-200/50 transition-all duration-300">
           {error && (
-            <div className="mb-6 p-3 bg-rose-50 border border-rose-200 text-rose-600 text-sm font-semibold rounded-xl text-center">
+            <div className={`mb-6 p-3 border text-sm font-semibold rounded-xl text-center ${
+              error.includes('Email non confermata')
+                ? 'bg-amber-50 border-amber-200 text-amber-700'
+                : 'bg-rose-50 border-rose-200 text-rose-600'
+            }`}>
               {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-6 p-3 bg-emerald-50 border border-emerald-200 text-emerald-600 text-sm font-semibold rounded-xl text-center">
+              {success}
             </div>
           )}
 
@@ -185,6 +197,7 @@ export default function Login({ onLogin }: LoginProps) {
               onClick={() => {
                 setMode(mode === 'login' ? 'register' : 'login');
                 setError('');
+                setSuccess('');
               }}
               className="text-sm font-medium text-slate-500 hover:text-[#707E3D] transition-colors"
             >
