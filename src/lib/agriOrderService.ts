@@ -1,7 +1,9 @@
+"use server";
+
 import { GoogleGenerativeAI, Content } from "@google/generative-ai";
 import { updateCartTool } from "./tools";
 
-const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || "";
+const apiKey = process.env.GEMINI_API_KEY || "";
 const genAI = new GoogleGenerativeAI(apiKey);
 
 const SYSTEM_INSTRUCTION = `Sei AgriOrder AI, l'assistente B2B intelligente di 'Frantoio Ortuso'.
@@ -43,7 +45,7 @@ export async function processUserMessage(userMessage: string, chatHistory: Conte
   if (!apiKey) {
     return {
       type: "ERROR",
-      responseText: "⚠️ La chiave API di Gemini non è configurata. Aggiungi NEXT_PUBLIC_GEMINI_API_KEY al tuo file .env.local."
+      responseText: "⚠️ La chiave API di Gemini non è configurata. Aggiungi GEMINI_API_KEY al tuo file .env.local o alle variabili d'ambiente."
     };
   }
 
