@@ -32,7 +32,7 @@ export const registerUser = async (companyName: string, email: string, password:
       return { success: false, message: error.message };
     }
 
-    return { success: true, message: 'Registrazione completata. Controlla la tua email (se configurato) o effettua il login.' };
+    return { success: true, message: 'Registrazione completata con successo.' };
   } catch (error) {
     console.error('Registration error:', error);
     return { success: false, message: 'Errore durante la registrazione' };
@@ -48,10 +48,7 @@ export const loginUser = async (email: string, password: string): Promise<{ succ
     });
 
     if (error) {
-      if (error.message.includes('Email not confirmed')) {
-        return { success: false, message: 'Email non confermata. Controlla la tua posta per il link di attivazione.' };
-      }
-      return { success: false, message: 'Credenziali non valide' };
+      return { success: false, message: 'Credenziali non valide o errore di sistema' };
     }
 
     // Recupera i dati extra dal profilo

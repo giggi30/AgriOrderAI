@@ -41,8 +41,7 @@ export default function Login({ onLogin }: LoginProps) {
           if (loginResult.success && loginResult.user) {
             onLogin(loginResult.user);
           } else {
-            setMode('login'); // Vai al login se la registrazione è andata ma serve conferma email
-            setSuccess('Registrazione effettuata. Controlla la mail di verifica.');
+            setError('Registrazione effettuata, ma il login automatico è fallito. Riprova ad accedere.');
           }
         } else {
           setError(result.message);
@@ -82,11 +81,7 @@ export default function Login({ onLogin }: LoginProps) {
         {/* Login/Register Card */}
         <div className="bg-white border border-slate-200 p-8 rounded-3xl shadow-xl shadow-slate-200/50 transition-all duration-300">
           {error && (
-            <div className={`mb-6 p-3 border text-sm font-semibold rounded-xl text-center ${
-              error.includes('Email non confermata')
-                ? 'bg-amber-50 border-amber-200 text-amber-700'
-                : 'bg-rose-50 border-rose-200 text-rose-600'
-            }`}>
+            <div className="mb-6 p-3 bg-rose-50 border border-rose-200 text-rose-600 text-sm font-semibold rounded-xl text-center">
               {error}
             </div>
           )}

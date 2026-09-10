@@ -55,6 +55,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
     // Inizializza il tema al caricamento
@@ -261,10 +262,14 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   };
 
   const scrollToBottom = () => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     scrollToBottom();
   }, [messages, loading]);
 
@@ -415,7 +420,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   }));
 
   return (
-    <div className="w-full h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans md:p-6 flex flex-col transition-colors duration-300">
+    <div className="w-full h-screen md:h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans md:p-6 flex flex-col transition-colors duration-300">
       {/* MOBILE HEADER (Screenshot style) */}
       <div className="md:hidden flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 sticky top-0 z-50 transition-colors">
         <div className="flex flex-col">
@@ -1080,9 +1085,9 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
             </div>
 
             {/* Contenuto del "Foglio Bianco" */}
-            <div className="flex-1 overflow-y-auto p-12 font-serif bg-white shadow-inner">
+            <div className="flex-1 overflow-y-auto p-6 md:p-12 font-serif bg-white shadow-inner">
               {/* Intestazione Aziendale */}
-              <div className="flex justify-between items-start mb-8">
+              <div className="flex flex-col md:flex-row justify-between items-start mb-8 gap-6 md:gap-0">
                 <div>
                   <img src="/images/logo_ortuso.png" alt="Ortuso Logo" className="h-12 w-auto object-contain mb-2" />
                   <p className="text-[10px] text-slate-500 font-sans uppercase tracking-widest leading-none">Olearia Ortuso Srl • Italia</p>
@@ -1093,7 +1098,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                     <p>Tel: +39 0874.62147</p>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right self-end">
                   <div className="inline-block px-4 py-2 border-2 border-slate-900 mb-4">
                     <h3 className="text-sm font-bold uppercase tracking-widest">Commissione d'Acquisto</h3>
                   </div>
@@ -1105,13 +1110,13 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
               </div>
 
               {/* Dati Cliente */}
-              <div className="mb-8 grid grid-cols-2 gap-8 font-sans">
+              <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 font-sans">
                 <div className="bg-slate-50 p-4 border border-slate-100 rounded-lg">
                   <p className="text-[10px] text-slate-400 font-bold uppercase mb-2">Destinatario</p>
                   <p className="text-sm font-bold text-slate-900 uppercase">{user.companyName}</p>
                   <p className="text-xs text-slate-600 mt-1 italic">Indirizzo di spedizione verificato B2B</p>
                 </div>
-                <div className="p-4">
+                <div className="p-4 bg-slate-50 md:bg-transparent border border-slate-100 md:border-0 rounded-lg md:rounded-none">
                   <p className="text-[10px] text-slate-400 font-bold uppercase mb-2">Fornitori Coinvolti</p>
                   <div className="text-[10px] text-slate-600 space-y-1">
                     {(() => {
@@ -1134,39 +1139,41 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
               </div>
 
               {/* Tabella Prodotti */}
-              <table className="w-full text-left border-collapse mb-8 font-sans">
-                <thead>
-                  <tr className="border-b-2 border-slate-900">
-                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-900">Descrizione Prodotto</th>
-                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 text-center">Unità</th>
-                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 text-right">Prezzo Unit.</th>
-                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 text-center">Q.tà</th>
-                    <th className="py-3 text-[10px] font-black uppercase tracking-widest text-slate-900 text-right">Totale Riga</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
+              <div className="overflow-x-auto -mx-6 md:mx-0 px-6 md:px-0 mb-8">
+                <table className="w-full text-left border-collapse font-sans min-w-[600px] md:min-w-0">
+                  <thead>
+                    <tr className="border-b-2 border-slate-900">
+                      <th className="py-3 text-[10px] md:text-[11px] font-black uppercase tracking-widest text-slate-900">Descrizione Prodotto</th>
+                      <th className="py-3 text-[10px] md:text-[11px] font-black uppercase tracking-widest text-slate-900 text-center px-2">Unità</th>
+                      <th className="py-3 text-[10px] md:text-[11px] font-black uppercase tracking-widest text-slate-900 text-right px-2">Prezzo Unit.</th>
+                      <th className="py-3 text-[10px] md:text-[11px] font-black uppercase tracking-widest text-slate-900 text-center px-2">Q.tà</th>
+                      <th className="py-3 text-[10px] md:text-[11px] font-black uppercase tracking-widest text-slate-900 text-right">Totale Riga</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
                   {Object.entries(lastOrderItems || cart).map(([id, qty]) => {
                     const product = CATALOG_PRODUCTS.find(p => p.id === id);
                     if (!product) return null;
                     return (
                       <tr key={id} className="group">
                         <td className="py-4 pr-4">
-                          <p className="text-xs font-bold text-slate-900 uppercase">{product.name}</p>
-                          <p className="text-[10px] text-slate-500 mt-0.5">{product.packageInfo}</p>
+                          <p className="text-xs md:text-sm font-bold text-slate-900 uppercase leading-tight">{product.name}</p>
+                          <p className="text-[9px] md:text-[10px] text-slate-500 mt-0.5">{product.packageInfo}</p>
                         </td>
-                        <td className="py-4 text-center text-[10px] text-slate-600 uppercase">{product.unit}</td>
-                        <td className="py-4 text-right text-xs text-slate-600 whitespace-nowrap">€{product.price.toFixed(2)}</td>
-                        <td className="py-4 text-center text-xs font-bold text-slate-900">{qty}</td>
-                        <td className="py-4 text-right text-xs font-black text-slate-900 whitespace-nowrap">€{(product.price * qty).toFixed(2)}</td>
+                        <td className="py-4 text-center text-[10px] text-slate-600 uppercase px-2">{product.unit}</td>
+                        <td className="py-4 text-right text-xs text-slate-600 whitespace-nowrap px-2">€{product.price.toFixed(2)}</td>
+                        <td className="py-4 text-center text-xs font-bold text-slate-900 px-2">{qty}</td>
+                        <td className="py-4 text-right text-xs md:text-sm font-black text-slate-900 whitespace-nowrap">€{(product.price * qty).toFixed(2)}</td>
                       </tr>
                     );
                   })}
-                </tbody>
-              </table>
+                  </tbody>
+                </table>
+              </div>
 
               {/* Riepilogo Totali */}
               <div className="flex justify-end font-sans">
-                <div className="w-64 space-y-2">
+                <div className="w-full md:w-64 space-y-2">
                   {(() => {
                     const items = lastOrderItems || cart;
                     const subtotal = Object.entries(items).reduce((sum, [id, qty]) => {
@@ -1197,10 +1204,10 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                           <span>IVA (22%):</span>
                           <span>€{vatAmount.toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between items-baseline text-lg font-black text-slate-900 pt-2 whitespace-nowrap">
+                        <div className="flex justify-between items-baseline text-lg md:text-xl font-black text-slate-900 pt-2 whitespace-nowrap">
                           <span className="uppercase tracking-tighter">Totale Documento:</span>
                           <span className="flex items-baseline">
-                            <span className="text-m">&nbsp;€{totalDoc.toFixed(2)}</span>
+                            <span className="text-lg md:text-xl">&nbsp;€{totalDoc.toFixed(2)}</span>
                           </span>
                         </div>
                       </>
@@ -1210,25 +1217,25 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
               </div>
 
               {/* Disclaimer */}
-              <div className="mt-20 pt-8 border-t border-slate-100 text-[9px] text-slate-400 font-sans leading-relaxed text-center">
+              <div className="mt-10 md:mt-20 pt-8 border-t border-slate-100 text-[9px] text-slate-400 font-sans leading-relaxed text-center">
                 Il presente documento non costituisce fattura. La merce viaggia con Documento di Trasporto accompagnatorio.
                 Termini e condizioni di vendita e <a href="/privacy" className="underline text-[#707E3D]">Privacy Policy</a> disponibili sul portale B2B di Ortuso.
               </div>
             </div>
 
             {/* Footer Azione Finale */}
-            <div className="p-6 bg-slate-50 border-t border-slate-200 flex justify-center items-center gap-4 no-print">
+            <div className="p-4 md:p-6 bg-slate-50 border-t border-slate-200 flex flex-col md:flex-row justify-center items-center gap-4 no-print">
               {lastOrderItems ? (
-                <div className="flex items-center gap-6">
-                  <div className="flex items-center gap-2 text-[#707E3D] font-bold animate-pulse">
-                    <CheckCheck className="w-6 h-6" /> ORDINE TRASMESSO CON SUCCESSO
+                <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 w-full md:w-auto">
+                  <div className="flex items-center gap-2 text-[#707E3D] font-bold animate-pulse text-center">
+                    <CheckCheck className="w-5 h-5 md:w-6 md:h-6" /> <span className="text-xs md:text-sm">ORDINE TRASMESSO CON SUCCESSO</span>
                   </div>
                   <button
                     onClick={() => {
                       setIsPdfOpen(false);
                       setLastOrderItems(null);
                     }}
-                    className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg"
+                    className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg w-full md:w-auto text-sm"
                   >
                     Chiudi Anteprima
                   </button>
@@ -1252,7 +1259,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                     setIsPdfOpen(false);
                     setCart({});
                   }}
-                  className="bg-[#707E3D] hover:bg-[#5A6531] text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-xl hover:shadow-[#707E3D]/20 transition-all transform hover:-translate-y-0.5"
+                  className="bg-[#707E3D] hover:bg-[#5A6531] text-white px-8 py-4 rounded-xl font-bold flex items-center justify-center gap-3 shadow-xl hover:shadow-[#707E3D]/20 transition-all transform hover:-translate-y-0.5 w-full md:w-auto text-sm md:text-base"
                 >
                   <CheckCheck className="w-5 h-5" /> Conferma & Invia Ordine Express
                 </button>
