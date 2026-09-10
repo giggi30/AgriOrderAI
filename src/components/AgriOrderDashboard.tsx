@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CATALOG_PRODUCTS } from '@/lib/productsData';
 import { processUserMessage } from '@/lib/agriOrderService';
-import { Send, Bot, Sparkles, ShoppingBag, FileText, RefreshCw, CheckCheck, Minus, Trash2, Plus, X, Printer, Mail, Sun, Moon, Trophy, Maximize2, PlusCircle, History } from 'lucide-react';
+import { Send, Bot, Sparkles, ShoppingBag, FileText, RefreshCw, CheckCheck, Minus, Trash2, Plus, X, Printer, Mail, Sun, Moon, Trophy, Maximize2, PlusCircle, History, LogOut } from 'lucide-react';
 import { Content } from '@google/generative-ai';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
@@ -52,6 +52,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   const [isAiOrder, setIsAiOrder] = useState(false);
   const [activeTab, setActiveTab] = useState<'chat' | 'catalog'>('chat');
   const [selectedOrderDetails, setSelectedOrderDetails] = useState<Order | null>(null);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -1309,7 +1310,10 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div
             className="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/80 backdrop-blur-md animate-fade-in"
-            onClick={() => setIsProfileOpen(false)}
+            onClick={() => {
+              setIsProfileOpen(false);
+              setShowLogoutConfirm(false);
+            }}
           />
           <div className="bg-white dark:bg-slate-900 w-full md:max-w-2xl rounded-[2.5rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.2)] overflow-hidden flex flex-col relative border border-slate-200 dark:border-slate-800 animate-modal-enter max-h-[90vh] overflow-y-auto">
             <div className="absolute top-6 right-6 flex items-center gap-2 z-10">
@@ -1325,7 +1329,13 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
               >
                 {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
-              <button onClick={() => setIsProfileOpen(false)} className="p-2.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-rose-500 transition-colors">
+              <button
+                onClick={() => {
+                  setIsProfileOpen(false);
+                  setShowLogoutConfirm(false);
+                }}
+                className="p-2.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-rose-500 transition-colors"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1450,6 +1460,37 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                 ) : (
                   <div className="text-center py-8 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
                     <p className="text-xs text-slate-500 italic">Non hai ancora effettuato ordini.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Pulsante Logout (Mobile/Generale) */}
+              <div className="mt-12 mb-8">
+                {!showLogoutConfirm ? (
+                  <button
+                    onClick={() => setShowLogoutConfirm(true)}
+                    className="w-full py-4 flex items-center justify-center gap-2 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-black uppercase tracking-widest rounded-2xl hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all border border-rose-200 dark:border-rose-500/20"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    Logout Account
+                  </button>
+                ) : (
+                  <div className="bg-rose-50 dark:bg-rose-950 p-6 rounded-[2rem] border border-rose-200 dark:border-rose-900 animate-in zoom-in duration-300">
+                    <p className="text-sm font-black text-rose-900 dark:text-rose-100 uppercase tracking-tighter text-center mb-4">Sei sicuro di voler uscire?</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() => setShowLogoutConfirm(false)}
+                        className="py-3 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-bold rounded-xl border border-slate-200 dark:border-slate-800 text-xs"
+                      >
+                        Annulla
+                      </button>
+                      <button
+                        onClick={onLogout}
+                        className="py-3 bg-rose-600 text-white font-black uppercase tracking-widest rounded-xl shadow-lg shadow-rose-600/20 text-xs"
+                      >
+                        Sì, Esci
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
