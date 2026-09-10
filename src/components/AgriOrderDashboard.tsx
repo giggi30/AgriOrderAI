@@ -75,6 +75,9 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
       setRedemptions(user.redemptions || {});
     }
 
+    // Forza lo scroll all'inizio al montaggio del componente
+    window.scrollTo(0, 0);
+
     // Carica lo storico ordini da Supabase
     async function loadOrders() {
       const dbOrders = await getOrdersAction(user.id);
@@ -270,7 +273,10 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
       isFirstRender.current = false;
       return;
     }
-    scrollToBottom();
+    // Esegui lo scroll solo se abbiamo aggiunto messaggi oltre a quello iniziale
+    if (messages.length > 1 || loading) {
+      scrollToBottom();
+    }
   }, [messages, loading]);
 
   // Gestione aggiunta manuale dal catalogo
@@ -411,8 +417,8 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   const levelAfterOrder = getLoyaltyLevel(orders.length + 1);
 
   const REWARDS = [
-    { id: 'reward-kit', name: 'Kit Assaggio Olii Aromatizzati', basePoints: 500, image: '/images/kit-assaggio-olii-aromatizzati.png', description: 'Selezione di bottigliette aromatizzate' },
-    { id: 'reward-dispenser', name: 'Dispenser Inox da Banco', basePoints: 1000, image: '/images/dispenser-acciaio-inox.png', description: 'Elegante dispenser professionale da 3L' },
+    { id: 'reward-kit', name: 'Kit Assaggio Olii Aromatizzati', basePoints: 500, image: '/images/kit_premio_1.png', description: 'Selezione di bottigliette aromatizzate' },
+    { id: 'reward-dispenser', name: 'Dispenser Inox da Banco', basePoints: 1000, image: '/images/dispenser_premio_2.png', description: 'Elegante dispenser professionale da 3L' },
     { id: 'reward-discount', name: 'Buono Sconto 100€', basePoints: 2000, icon: '🎫', description: 'Valido su tutto il catalogo Ortuso' },
   ].map(r => ({
     ...r,
@@ -1516,7 +1522,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
 
             <div className="p-6 md:p-8 bg-[#707E3D]/5 border-b border-[#707E3D]/10">
               <h3 className="text-xl md:text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter flex items-center gap-3">
-                <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-amber-500" /> Catalogo Premi B2B Ortuso
+                Catalogo Premi B2B Ortuso
               </h3>
               <p className="text-[11px] md:text-sm text-slate-600 dark:text-slate-400 mt-1">Utilizza i tuoi punti fedeltà per riscattare premi esclusivi per la tua attività.</p>
             </div>
