@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CATALOG_PRODUCTS } from '@/lib/productsData';
 import { processUserMessage } from '@/lib/agriOrderService';
-import { Send, Bot, Sparkles, ShoppingBag, FileText, RefreshCw, CheckCheck, Minus, Trash2, Plus, X, Printer, Mail, Sun, Moon, Trophy, Maximize2, PlusCircle } from 'lucide-react';
+import { Send, Bot, Sparkles, ShoppingBag, FileText, RefreshCw, CheckCheck, Minus, Trash2, Plus, X, Printer, Mail, Sun, Moon, Trophy, Maximize2, PlusCircle, History } from 'lucide-react';
 import { Content } from '@google/generative-ai';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
@@ -51,6 +51,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   const [zoomedProduct, setZoomedProduct] = useState<any | null>(null);
   const [isAiOrder, setIsAiOrder] = useState(false);
   const [activeTab, setActiveTab] = useState<'chat' | 'catalog'>('chat');
+  const [selectedOrderDetails, setSelectedOrderDetails] = useState<Order | null>(null);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -78,7 +79,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
       if (dbOrders) {
         setOrders(dbOrders.map(o => ({
           id: o.id,
-          date: new Date(o.created_at).toLocaleDateString(),
+          date: o.created_at,
           items: o.items,
           total: Number(o.total_amount)
         })));
@@ -1410,6 +1411,48 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                   )}
                 </div>
               </div>
+
+              {/* Separatore */}
+              <div className="h-px bg-slate-200 dark:bg-slate-800 my-8" />
+
+              {/* Storico Ordini */}
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Storico Ordini</h5>
+                  <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">{orders.length} Ordini Totali</span>
+                </div>
+
+                {orders.length > 0 ? (
+                  <div className="space-y-3">
+                    {[...orders].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(order => (
+                      <div key={order.id} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-4 rounded-2xl flex items-center justify-between hover:border-[#707E3D]/30 transition-colors group">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-[#707E3D]">
+                            <History className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">Ordine #{order.id.substring(0, 8)}</p>
+                            <p className="text-[10px] text-slate-500 font-medium">{new Date(order.date).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-black text-slate-900 dark:text-white italic">€{order.total.toFixed(2)}</p>
+                          <button
+                            onClick={() => setSelectedOrderDetails(order)}
+                            className="text-[9px] text-slate-400 font-bold uppercase tracking-widest group-hover:text-[#707E3D] transition-colors"
+                          >
+                            Dettagli
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
+                    <p className="text-xs text-slate-500 italic">Non hai ancora effettuato ordini.</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           </div>
@@ -1503,6 +1546,92 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
           </div>
         </div>
       )}
+
+      {/* OVERLAY DETTAGLI ORDINE */}
+      {selectedOrderDetails && (
+        <div className="fixed inset-0 z-[110] bg-slate-900/60 dark:bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in zoom-in duration-300">
+          <div className="bg-white dark:bg-slate-900 w-full md:max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col relative border border-slate-200 dark:border-slate-800">
+            <button onClick={() => setSelectedOrderDetails(null)} className="absolute top-4 right-4 p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-rose-500 transition-colors z-10">
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="p-6 md:p-8 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 rounded-2xl bg-[#707E3D]/10 flex items-center justify-center text-[#707E3D]">
+                  <History className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Dettagli Ordine</h3>
+                  <p className="text-xs text-slate-500 font-medium">ID: <span className="font-mono text-[10px]">{selectedOrderDetails.id}</span></p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-4 mt-2">
+                <div className="bg-white dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Data Ordine</p>
+                  <p className="text-xs font-bold text-slate-900 dark:text-white">
+                    {new Date(selectedOrderDetails.date).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+                <div className="bg-white dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Stato</p>
+                  <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase">Confermato</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 md:p-8">
+              <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Prodotti Ordinati</h5>
+              <div className="space-y-4">
+                {Object.entries(selectedOrderDetails.items).map(([productId, quantity]) => {
+                  const product = CATALOG_PRODUCTS.find(p => p.id === productId);
+                  if (!product) return null;
+                  return (
+                    <div key={productId} className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-xl overflow-hidden">
+                          {product.image ? (
+                            <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                          ) : (
+                            product.icon
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-xs font-black text-slate-900 dark:text-white leading-tight uppercase tracking-tight">{product.name}</p>
+                          <p className="text-[10px] text-slate-500 font-medium">{product.unit} × {quantity}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs font-black text-slate-900 dark:text-white italic">€{(product.price * quantity).toFixed(2)}</p>
+                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">€{product.price.toFixed(2)} / unit</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="p-6 md:p-8 bg-slate-50 dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter">Totale Ordine</p>
+                  <p className="text-[10px] text-slate-500 font-medium">IVA 22% inclusa ove applicabile</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-3xl font-black text-[#707E3D] italic leading-none">€{selectedOrderDetails.total.toFixed(2)}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedOrderDetails(null)}
+                className="w-full py-4 bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-xl"
+              >
+                Chiudi Dettagli
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* OVERLAY ZOOM IMMAGINE PRODOTTO */}
       {zoomedProduct && (
         <div
