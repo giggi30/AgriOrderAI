@@ -7,6 +7,5 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Necessario per far credere al browser che l'app funzioni offline
   event.respondWith(fetch(event.request));
 });

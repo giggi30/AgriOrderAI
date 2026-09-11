@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CATALOG_PRODUCTS } from '@/lib/productsData';
 import { processUserMessage } from '@/lib/agriOrderService';
-import { Send, Bot, Sparkles, ShoppingBag, FileText, RefreshCw, CheckCheck, Minus, Trash2, Plus, X, Printer, Mail, Sun, Moon, Trophy, Maximize2, PlusCircle, History, LogOut, Smartphone, Download } from 'lucide-react';
+import { Send, Bot, Sparkles, ShoppingBag, FileText, RefreshCw, CheckCheck, Minus, Trash2, Plus, X, Printer, Mail, Sun, Moon, Trophy, Maximize2, PlusCircle, History, LogOut, Smartphone, Download, Share, PlusSquare } from 'lucide-react';
 import { Content } from '@google/generative-ai';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
@@ -54,6 +54,8 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   const [selectedOrderDetails, setSelectedOrderDetails] = useState<Order | null>(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
+  const [showIOSInstructions, setShowIOSInstructions] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const isFirstRender = useRef(true);
@@ -79,6 +81,11 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
     // Forza lo scroll all'inizio al montaggio del componente
     window.scrollTo(0, 0);
 
+    // Registrazione Service Worker per PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(err => console.error("SW Error:", err));
+    }
+
     // Carica lo storico ordini da Supabase
     async function loadOrders() {
       const dbOrders = await getOrdersAction(user.id);
@@ -93,13 +100,38 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
     }
     loadOrders();
 
-    // Gestione Banner Installazione App (PWA / Web Clip)
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    const dismissed = localStorage.getItem('installBannerDismissed');
-    if (isMobile && !dismissed) {
-      setTimeout(() => setShowInstallBanner(true), 2000);
+    // Gestione Installazione PWA
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      if (!isStandalone && !localStorage.getItem('installBannerDismissed')) {
+        setShowInstallBanner(true);
+      }
+    });
+
+    if (isIOS && !isStandalone && !localStorage.getItem('installBannerDismissed')) {
+      setTimeout(() => setShowInstallBanner(true), 3000);
     }
   }, [user]);
+
+  const handleInstallClick = async () => {
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isIOS) {
+      setShowIOSInstructions(true);
+      setShowInstallBanner(false);
+    } else if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') setShowInstallBanner(false);
+      setDeferredPrompt(null);
+    } else {
+      alert("Tocca i tre puntini in alto a destra e seleziona 'Installa applicazione' per usare l'App.");
+      setShowInstallBanner(false);
+    }
+  };
 
   const saveLoyalty = async (points: number, newBadges: string[], newRedemptions: Record<string, number> = redemptions) => {
     setLoyaltyPoints(points);
@@ -439,35 +471,73 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
       {showInstallBanner && (
         <div className="md:hidden bg-[#707E3D] text-white px-5 py-4 flex items-center justify-between gap-3 animate-in slide-in-from-top duration-700 z-[60] shadow-xl border-b border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center shrink-0 shadow-inner">
-              <Smartphone className="w-6 h-6" />
+            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0 shadow-inner">
+              <Smartphone className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-[12px] font-black uppercase tracking-tight leading-tight">Installa l'App Ortuso</p>
-              <p className="text-[10px] opacity-90 leading-tight mt-0.5">Ordina più velocemente dal tuo schermo</p>
+              <p className="text-[12px] font-black uppercase tracking-tight leading-tight">Usa l'App Ortuso</p>
+              <p className="text-[10px] opacity-90 leading-tight mt-0.5">Aggiungila alla schermata home</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <a
-              href="/agriorder.mobileconfig"
-              onClick={() => {
-                // Su iOS scarica il profilo, su Android scarica il file (meno utile ma innocuo)
-                if (!/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                  // Se Android, magari mostriamo un alert o lasciamo che manifest.json faccia il suo lavoro
-                }
-              }}
-              className="bg-white text-[#707E3D] px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-[0_4px_12px_rgba(0,0,0,0.1)] flex items-center gap-2 active:scale-90 transition-transform"
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleInstallClick}
+              className="bg-white text-[#707E3D] px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-md active:scale-95 transition-transform"
             >
-              <Download className="w-4 h-4" /> Installa
-            </a>
+              Installa
+            </button>
             <button
               onClick={() => {
                 setShowInstallBanner(false);
                 localStorage.setItem('installBannerDismissed', 'true');
               }}
-              className="p-1.5 bg-black/10 rounded-full hover:bg-black/20 transition-colors"
+              className="p-2 text-white/60"
             >
               <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* OVERLAY ISTRUZIONI iOS */}
+      {showIOSInstructions && (
+        <div className="fixed inset-0 z-[200] bg-slate-900/80 backdrop-blur-sm flex items-end justify-center p-4 animate-in fade-in duration-300" onClick={() => setShowIOSInstructions(false)}>
+          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-in slide-in-from-bottom duration-500 mb-4" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-start mb-6">
+              <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Installa su iPhone</h3>
+              <button onClick={() => setShowIOSInstructions(false)} className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center shrink-0">
+                  <Share className="w-6 h-6" />
+                </div>
+                <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                  1. Tocca l'icona <span className="text-blue-600 font-black">Condividi</span> nella barra di Safari in basso.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-2xl flex items-center justify-center shrink-0">
+                  <PlusSquare className="w-6 h-6" />
+                </div>
+                <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                  2. Scorri verso il basso e tocca <span className="text-amber-600 font-black">"Aggiungi alla schermata Home"</span>.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                setShowIOSInstructions(false);
+                localStorage.setItem('installBannerDismissed', 'true');
+              }}
+              className="w-full mt-10 py-4 bg-[#707E3D] text-white font-black uppercase tracking-widest rounded-2xl shadow-lg"
+            >
+              Ho capito
             </button>
           </div>
         </div>
