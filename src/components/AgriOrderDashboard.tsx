@@ -417,8 +417,8 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   const levelAfterOrder = getLoyaltyLevel(orders.length + 1);
 
   const REWARDS = [
-    { id: 'reward-kit', name: 'Kit Assaggio Olii Aromatizzati', basePoints: 500, image: '/images/kit_premio_1.png', description: 'Selezione di bottigliette aromatizzate' },
-    { id: 'reward-dispenser', name: 'Dispenser Inox da Banco', basePoints: 1000, image: '/images/dispenser_premio_2.png', description: 'Elegante dispenser professionale da 3L' },
+    { id: 'reward-kit', name: 'Kit Assaggio Olii Aromatizzati', basePoints: 500, image: '/images/premio1.png', description: 'Selezione di bottigliette aromatizzate' },
+    { id: 'reward-dispenser', name: 'Dispenser Inox da Banco', basePoints: 1000, image: '/images/premio2.png', description: 'Elegante dispenser professionale da 3L' },
     { id: 'reward-discount', name: 'Buono Sconto 100€', basePoints: 2000, icon: '🎫', description: 'Valido su tutto il catalogo Ortuso' },
   ].map(r => ({
     ...r,
@@ -544,7 +544,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
               </div>
               <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tighter transition-colors">Ortuso AI Assistant</h3>
             </div>
-            <button onClick={handleClearChat} className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-lg transition-colors">Pulisci</button>
+            <button onClick={handleClearChat} className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-lg transition-colors">Resetta</button>
           </div>
           {/* Chat Header (Desktop Only) */}
           <div className="hidden md:flex p-4 bg-slate-50/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 items-center justify-between">
@@ -564,7 +564,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-900/30 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 border border-slate-200 dark:border-slate-700 hover:border-rose-200 dark:hover:border-rose-500/30 transition-all text-xs font-bold uppercase tracking-wider"
             >
               <Trash2 className="w-3.5 h-3.5" />
-              Clear Chat
+              Resetta
             </button>
           </div>
 
@@ -1011,7 +1011,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                   onClick={() => setIsRewardsOpen(true)}
                   className="bg-white dark:bg-slate-900 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-amber-600 border border-slate-200 dark:border-slate-800 hover:border-amber-200 text-sm font-bold uppercase tracking-wider px-3 py-2.5 rounded-lg flex items-center gap-2 transition-all shadow-sm"
                 >
-                  <Sparkles className="w-3.5 h-3.5" /> Premi
+                  <Trophy className="w-3.5 h-3.5" /> Premi
                 </button>
                 <button
                   onClick={handleClearCart}
@@ -1025,7 +1025,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                   disabled={totalAmount === 0}
                   className="bg-[#707E3D] hover:bg-[#5A6531] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-lg transition"
                 >
-                  <FileText className="w-4 h-4" /> Invia Ordine
+                  <FileText className="w-4 h-4" /> Ordina
                 </button>
               </div>
             </div>
@@ -1106,7 +1106,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                 </div>
                 <div className="text-right self-end">
                   <div className="inline-block px-4 py-2 border-2 border-slate-900 mb-4">
-                    <h3 className="text-sm font-bold uppercase tracking-widest">Commissione d'Acquisto</h3>
+                    <h3 className="text-sm font-bold uppercase tracking-widest">Commessa d'Acquisto</h3>
                   </div>
                   <div className="text-xs font-sans text-slate-600">
                     <p>Data: <span className="text-slate-900 font-bold">{new Date().toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}</span></p>
