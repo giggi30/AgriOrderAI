@@ -22,6 +22,7 @@ export const metadata: Metadata = {
     shortcut: "/images/olive-oil-icon.png",
     apple: "/images/olive-oil-icon.png",
   },
+  manifest: "/manifest.json",
   other: {
     google: 'notranslate',
   },

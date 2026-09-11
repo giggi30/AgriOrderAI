@@ -1,0 +1,16 @@
+{
+  "name": "AgriOrder AI - Ortuso",
+  "short_name": "AgriOrder",
+  "description": "Smart B2B Portal for AgriOrder AI",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#707E3D",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

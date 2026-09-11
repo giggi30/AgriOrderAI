@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CATALOG_PRODUCTS } from '@/lib/productsData';
 import { processUserMessage } from '@/lib/agriOrderService';
-import { Send, Bot, Sparkles, ShoppingBag, FileText, RefreshCw, CheckCheck, Minus, Trash2, Plus, X, Printer, Mail, Sun, Moon, Trophy, Maximize2, PlusCircle, History, LogOut } from 'lucide-react';
+import { Send, Bot, Sparkles, ShoppingBag, FileText, RefreshCw, CheckCheck, Minus, Trash2, Plus, X, Printer, Mail, Sun, Moon, Trophy, Maximize2, PlusCircle, History, LogOut, Smartphone, Download } from 'lucide-react';
 import { Content } from '@google/generative-ai';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
@@ -53,6 +53,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   const [activeTab, setActiveTab] = useState<'chat' | 'catalog'>('chat');
   const [selectedOrderDetails, setSelectedOrderDetails] = useState<Order | null>(null);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const isFirstRender = useRef(true);
@@ -91,6 +92,13 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
       }
     }
     loadOrders();
+
+    // Gestione Banner Installazione App (PWA / Web Clip)
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const dismissed = localStorage.getItem('installBannerDismissed');
+    if (isMobile && !dismissed) {
+      setTimeout(() => setShowInstallBanner(true), 2000);
+    }
   }, [user]);
 
   const saveLoyalty = async (points: number, newBadges: string[], newRedemptions: Record<string, number> = redemptions) => {
@@ -427,6 +435,44 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
 
   return (
     <div className="w-full h-screen md:h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans md:p-6 flex flex-col transition-colors duration-300">
+      {/* APP INSTALL BANNER (Mobile Only) */}
+      {showInstallBanner && (
+        <div className="md:hidden bg-[#707E3D] text-white px-5 py-4 flex items-center justify-between gap-3 animate-in slide-in-from-top duration-700 z-[60] shadow-xl border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center shrink-0 shadow-inner">
+              <Smartphone className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-[12px] font-black uppercase tracking-tight leading-tight">Installa l'App Ortuso</p>
+              <p className="text-[10px] opacity-90 leading-tight mt-0.5">Ordina più velocemente dal tuo schermo</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <a
+              href="/agriorder.mobileconfig"
+              onClick={() => {
+                // Su iOS scarica il profilo, su Android scarica il file (meno utile ma innocuo)
+                if (!/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                  // Se Android, magari mostriamo un alert o lasciamo che manifest.json faccia il suo lavoro
+                }
+              }}
+              className="bg-white text-[#707E3D] px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-[0_4px_12px_rgba(0,0,0,0.1)] flex items-center gap-2 active:scale-90 transition-transform"
+            >
+              <Download className="w-4 h-4" /> Installa
+            </a>
+            <button
+              onClick={() => {
+                setShowInstallBanner(false);
+                localStorage.setItem('installBannerDismissed', 'true');
+              }}
+              className="p-1.5 bg-black/10 rounded-full hover:bg-black/20 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* MOBILE HEADER (Screenshot style) */}
       <div className="md:hidden flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 sticky top-0 z-50 transition-colors">
         <div className="flex flex-col">
