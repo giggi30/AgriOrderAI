@@ -542,7 +542,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
               <div className="w-8 h-8 rounded-lg bg-[#707E3D]/10 flex items-center justify-center">
                 <Sparkles className="w-4 h-4 text-[#707E3D] dark:text-[#A1B06B]" />
               </div>
-              <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tighter transition-colors">Ortuso AI Assistant</h3>
+              <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tighter transition-colors">Assistente AI Ortuso</h3>
             </div>
             <button onClick={handleClearChat} className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-lg transition-colors">Resetta</button>
           </div>
@@ -554,7 +554,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
               </div>
               <div>
                 <h3 className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
-                  Ortuso AI Assistant <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-400 fill-amber-500 dark:fill-amber-400" />
+                  Assistente AI Ortuso <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-400 fill-amber-500 dark:fill-amber-400" />
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400">Scrivi o seleziona uno scenario rapido</p>
               </div>
@@ -657,7 +657,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                   className="group relative bg-[#707E3D] hover:bg-[#5A6531] text-white px-8 py-4 rounded-2xl font-black text-lg flex items-center gap-3 shadow-[0_10px_30px_rgba(112,126,61,0.3)] hover:shadow-[0_15px_40px_rgba(112,126,61,0.4)] transition-all transform hover:-translate-y-1 active:scale-95 border-2 border-[#A1B06B]/20"
                 >
                   <div className="absolute -top-3 -right-3 bg-amber-500 text-slate-950 text-[10px] font-black px-2 py-1 rounded-full shadow-lg animate-bounce">
-                    FAST CHECKOUT
+                    ORDINE RAPIDO
                   </div>
                   <CheckCheck className="w-6 h-6 group-hover:scale-110 transition-transform" />
                   CONFERMA & INVIA ORDINE EXPRESS
@@ -779,8 +779,9 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
               ].map(cat => (
                 <button
                   key={cat.name}
+                  translate="no"
                   onClick={() => setActiveCategory(cat.name)}
-                  className={`flex-1 text-[11px] px-3 py-2 rounded-lg transition-all font-bold whitespace-nowrap flex items-center justify-center gap-1 ${
+                  className={`flex-1 text-[11px] px-3 py-2 rounded-lg transition-all font-bold whitespace-nowrap flex items-center justify-center gap-1 notranslate ${
                     activeCategory === cat.name
                       ? 'bg-[#5A6531] text-white shadow-sm'
                       : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
@@ -801,8 +802,9 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
               {['Tutti', 'Olio', 'Aceti', 'Pomodori', 'Tartufo', 'Specialità'].map(cat => (
                 <button
                   key={cat}
+                  translate="no"
                   onClick={() => setActiveCategory(cat)}
-                  className={`text-xs px-2.5 py-1 rounded-md transition ${
+                  className={`text-xs px-2.5 py-1 rounded-md transition notranslate ${
                     activeCategory === cat ? 'bg-[#707E3D] text-white font-semibold shadow-md' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                   }`}
                 >
@@ -843,12 +845,12 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                       {product.id.includes('bio') && (
                         <span className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[9px] font-black uppercase px-2 py-0.5 rounded-md border border-emerald-100 dark:border-emerald-800 inline-block mb-1">Bio</span>
                       )}
-                      <h4 className="text-[16px] font-black text-slate-900 dark:text-white leading-tight">{product.name}</h4>
+                      <h4 translate="no" className="text-[16px] font-black text-slate-900 dark:text-white leading-tight notranslate">{product.name}</h4>
                     </div>
                     <div className="flex flex-col gap-0.5">
                       <span className="text-xl font-black text-[#5A6531] dark:text-[#A1B06B]">€ {product.price.toFixed(2)}</span>
-                      <span className="text-[11px] text-slate-400 dark:text-slate-500 font-bold tracking-tight uppercase">/ {product.unit}</span>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold mt-0.5 tracking-tight">{product.packageInfo}</p>
+                      <span translate="no" className="text-[11px] text-slate-400 dark:text-slate-500 font-bold tracking-tight uppercase notranslate">/ {product.unit}</span>
+                      <p translate="no" className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold mt-0.5 tracking-tight notranslate">{product.packageInfo}</p>
                     </div>
                   </div>
                   <div className="flex flex-col items-center gap-2 shrink-0 self-center w-12">
@@ -939,7 +941,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
 
                     <div className="flex flex-col flex-1 px-1">
                       <div className="mb-2">
-                        <h4 className="text-[18px] font-bold leading-[1.2] text-[#46501E] dark:text-[#F4F7E6] tracking-tight">
+                        <h4 translate="no" className="text-[18px] font-bold leading-[1.2] text-[#46501E] dark:text-[#F4F7E6] tracking-tight notranslate">
                           {product.name}
                         </h4>
                       </div>
@@ -954,10 +956,10 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                           € {product.price.toFixed(2)}
                         </span>
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-[10px] text-slate-400 dark:text-slate-500 italic font-medium whitespace-nowrap">
+                          <span translate="no" className="text-[10px] text-slate-400 dark:text-slate-500 italic font-medium whitespace-nowrap notranslate">
                             {product.unit}
                           </span>
-                          <span className="text-[12px] font-black text-[#707E3D] dark:text-[#A9B876] whitespace-nowrap">
+                          <span translate="no" className="text-[12px] font-black text-[#707E3D] dark:text-[#A9B876] whitespace-nowrap notranslate">
                             {product.packageInfo}
                           </span>
                         </div>
@@ -1022,8 +1024,9 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                 </button>
                 <button
                   onClick={() => setIsPdfOpen(true)}
+                  translate="no"
                   disabled={totalAmount === 0}
-                  className="bg-[#707E3D] hover:bg-[#5A6531] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-lg transition"
+                  className="bg-[#707E3D] hover:bg-[#5A6531] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-lg transition notranslate"
                 >
                   <FileText className="w-4 h-4" /> Ordina
                 </button>
@@ -1056,8 +1059,9 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
           </button>
           <button
             onClick={() => setIsPdfOpen(true)}
+            translate="no"
             disabled={totalAmount === 0}
-            className="bg-[#5A6531] text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-[#5A6531]/20 active:scale-95 transition-transform disabled:opacity-50 disabled:shadow-none"
+            className="bg-[#5A6531] text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-[#5A6531]/20 active:scale-95 transition-transform disabled:opacity-50 disabled:shadow-none notranslate"
           >
             <ShoppingBag className="w-4 h-4" /> Ordina
           </button>
