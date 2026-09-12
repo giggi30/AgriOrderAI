@@ -56,6 +56,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   const [showInstallBanner, setShowInstallBanner] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const isFirstRender = useRef(true);
@@ -116,6 +117,18 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
       setTimeout(() => setShowInstallBanner(true), 3000);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.visualViewport) {
+      const handleResize = () => {
+        if (isInputFocused) {
+          scrollToBottom();
+        }
+      };
+      window.visualViewport.addEventListener('resize', handleResize);
+      return () => window.visualViewport?.removeEventListener('resize', handleResize);
+    }
+  }, [isInputFocused]);
 
   const handleInstallClick = async () => {
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -466,7 +479,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   }));
 
   return (
-    <div className="w-full h-screen md:h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans md:p-6 flex flex-col transition-colors duration-300">
+    <div className="w-full h-[100dvh] md:h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans md:p-6 flex flex-col transition-colors duration-300">
       {/* APP INSTALL BANNER (Mobile Only) */}
       {showInstallBanner && (
         <div className="md:hidden bg-[#707E3D] text-white px-5 py-4 flex items-center justify-between gap-3 animate-in slide-in-from-top duration-700 z-[60] shadow-xl border-b border-white/10">
@@ -558,7 +571,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
       )}
 
       {/* MOBILE HEADER (Screenshot style) */}
-      <div className="md:hidden flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 sticky top-0 z-50 transition-colors">
+      <div className="md:hidden flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 sticky top-0 z-50 transition-colors shrink-0">
         <div className="flex flex-col">
           <img
             src="/images/logo_ortuso.png"
@@ -579,7 +592,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
       </div>
 
       {/* MOBILE TABS SWITCHER */}
-      <div className="md:hidden px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-50 dark:border-slate-800 flex-none transition-colors">
+      <div className="md:hidden px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-50 dark:border-slate-800 flex-none transition-colors shrink-0">
         <div className="bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-2xl flex border border-slate-200 dark:border-slate-700 shadow-inner">
           <button
             onClick={() => setActiveTab('chat')}
@@ -604,6 +617,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
         </div>
       </div>
 
+
       {/* Top Header (Desktop Only) */}
       <div className="hidden md:flex max-w-[1800px] w-full mx-auto mb-4 items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 flex-none">
 
@@ -621,7 +635,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-4">
             <button
-              onClick={onLogout}
+              onClick={() => setShowLogoutConfirm(true)}
               className="text-[10px] text-slate-400 hover:text-rose-500 dark:text-slate-500 dark:hover:text-rose-400 transition-colors uppercase tracking-widest font-black mr-2"
             >
               Logout
@@ -663,16 +677,16 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
 
         {/* COLONNA SINISTRA: CHATBOT AI */}
         <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl md:rounded-2xl flex flex-col overflow-hidden shadow-xl ${
-          activeTab === 'chat' ? 'flex h-full' : 'hidden lg:flex'
+          activeTab === 'chat' ? 'flex flex-1 min-h-0' : 'hidden lg:flex'
         } ${activeTab === 'chat' ? 'rounded-none border-0 shadow-none md:border md:rounded-2xl md:shadow-xl' : ''}`}>
 
           {/* Mobile Chat Title Bar */}
-          <div className="md:hidden flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 transition-colors">
+          <div className="md:hidden flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 transition-colors shrink-0">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-[#707E3D]/10 flex items-center justify-center">
                 <Sparkles className="w-4 h-4 text-[#707E3D] dark:text-[#A1B06B]" />
               </div>
-              <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tighter transition-colors">Assistente AI Ortusooo</h3>
+              <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tighter transition-colors">Assistente AI Ortuso</h3>
             </div>
             <button onClick={handleClearChat} className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-lg transition-colors">Resetta</button>
           </div>
@@ -797,19 +811,23 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
             <div ref={chatEndRef} />
           </div>
 
-          {/* Quick Prompts (Mobile) */}
-          <div className="md:hidden px-6 py-4 bg-white dark:bg-slate-900 border-t border-slate-50 dark:border-slate-800 transition-colors">
-            <h4 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Comandi Rapidi</h4>
+          {/* Quick Prompts (Mobile) - Fissati sopra l'input */}
+          <div
+            className={`md:hidden px-6 pt-1 pb-1 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm fixed left-0 right-0 z-40 transition-all ${
+              (!isInputFocused && totalAmount > 0) ? 'bottom-[148px]' : 'bottom-[76px]'
+            }`}
+          >
+
             <div className="flex gap-2 overflow-x-auto no-scrollbar">
               <button
                 onClick={handleRecurringOrder}
-                className="text-xs bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:border-[#707E3D]/30 text-slate-600 dark:text-slate-300 px-4 py-2.5 rounded-full whitespace-nowrap transition-all shadow-[0_2px_8px_rgba(0,0,0,0.03)] font-bold flex items-center gap-2 active:scale-95"
+                className="text-xs bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:border-[#707E3D]/30 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-full whitespace-nowrap transition-all shadow-[0_2px_8px_rgba(0,0,0,0.03)] font-bold flex items-center gap-2 active:scale-95"
               >
                 <RefreshCw className="w-3.5 h-3.5 text-blue-500" /> Ultimo Ordine
               </button>
               <button
                 onClick={handleSolitoOrder}
-                className={`text-xs px-4 py-2.5 rounded-full whitespace-nowrap transition-all shadow-[0_2px_8px_rgba(0,0,0,0.03)] font-bold flex items-center gap-2 active:scale-95 ${
+                className={`text-xs px-4 py-2 rounded-full whitespace-nowrap transition-all shadow-[0_2px_8px_rgba(0,0,0,0.03)] font-bold flex items-center gap-2 active:scale-95 ${
                   getRecurringOrder()
                     ? 'bg-white dark:bg-slate-800 border border-amber-100 dark:border-amber-900 text-amber-700 dark:text-amber-500 hover:border-amber-200'
                     : 'bg-slate-50 dark:bg-slate-800 opacity-50 border border-slate-100 dark:border-slate-700 text-slate-400'
@@ -819,13 +837,13 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
               </button>
               <button
                 onClick={() => handleSend("Aggiungi 3 cartoni di Passata di Pomodoro e 2 barattoli di Salsa Tartufata")}
-                className="text-xs bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:border-[#707E3D]/30 text-slate-600 dark:text-slate-300 px-4 py-2.5 rounded-full whitespace-nowrap transition-all shadow-[0_2px_8px_rgba(0,0,0,0.03)] font-bold flex items-center gap-2 active:scale-95"
+                className="text-xs bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:border-[#707E3D]/30 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-full whitespace-nowrap transition-all shadow-[0_2px_8px_rgba(0,0,0,0.03)] font-bold flex items-center gap-2 active:scale-95"
               >
                 🍅 Conserve & Tartufo
               </button>
               <button
                 onClick={() => handleSend("Vorrei creare un nuovo comando rapido personalizzato con i miei prodotti preferiti")}
-                className="text-xs bg-[#707E3D] border border-[#707E3D] text-white px-4 py-2.5 rounded-full whitespace-nowrap transition-all shadow-lg shadow-[#707E3D]/20 font-black flex items-center gap-2 active:scale-95"
+                className="text-xs bg-[#707E3D] border border-[#707E3D] text-white px-4 py-2 rounded-full whitespace-nowrap transition-all shadow-lg shadow-[#707E3D]/20 font-black flex items-center gap-2 active:scale-95"
               >
                 <PlusCircle className="w-3.5 h-3.5" /> Crea il tuo comando rapido
               </button>
@@ -838,7 +856,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
               onClick={handleRecurringOrder}
               className="text-sm bg-[#707E3D]/5 dark:bg-[#707E3D]/10 hover:bg-[#707E3D]/10 dark:hover:bg-[#707E3D]/20 border border-[#707E3D]/20 dark:border-[#707E3D]/30 text-[#707E3D] dark:text-[#A1B06B] px-3 py-1.5 rounded-lg whitespace-nowrap transition shadow-sm font-bold flex items-center gap-1.5"
             >
-              <RefreshCw className="w-3.5 h-3.5" /> Ultimo Ordine
+              <RefreshCw className="w-3.5 h-3.5 " /> Ultimo Ordine
             </button>
             <button
               onClick={handleSolitoOrder}
@@ -859,14 +877,27 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
           </div>
 
           {/* Chat Input Bar (Mobile) */}
-          <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="md:hidden p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex gap-2 mb-20 md:mb-0 transition-colors">
+          <form
+            onSubmit={(e) => { e.preventDefault(); handleSend(); }}
+            className={`md:hidden p-4 pt-1 bg-white/95 dark:bg-slate-900/95 flex gap-2 fixed left-0 right-0 z-40 transition-all ${(!isInputFocused && totalAmount > 0) ? 'bottom-[72px]' : 'bottom-0'}`}
+          >
             <div className="flex-1 relative">
               <input
                 type="text"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="none"
+                spellCheck="false"
+                name="chat-input"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Scrivi il tuo ordine in linguaggio naturale..."
-                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-6 py-3.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#707E3D]/10 focus:border-[#707E3D] transition-all"
+                onFocus={() => {
+                  setIsInputFocused(true);
+                  setTimeout(scrollToBottom, 300);
+                }}
+                onBlur={() => setIsInputFocused(false)}
+                placeholder="Scrivi..."
+                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-6 py-3.5 text-base text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#707E3D]/10 focus:border-[#707E3D] transition-all"
               />
               <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#5A6531] hover:bg-[#46501E] text-white w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-lg active:scale-90">
                 <Send className="w-4 h-4" />
@@ -874,10 +905,18 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
             </div>
           </form>
 
+          {/* Spacer per i blocchi fissi su mobile (input + comandi rapidi + eventuale carrello) */}
+          <div className={`md:hidden flex-none transition-all ${(!isInputFocused && totalAmount > 0) ? 'h-[160px]' : 'h-[110px]'}`} />
+
           {/* Chat Input Bar (Desktop - Reverted) */}
           <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="hidden md:flex p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 gap-2">
             <input
               type="text"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="none"
+              spellCheck="false"
+              name="chat-input-desktop"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Scrivi qui il tuo ordine in linguaggio naturale..."
@@ -1168,7 +1207,8 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
       </div>
 
       {/* MOBILE STICKY FOOTER (Screenshot Style) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-6 py-4 flex items-center justify-between z-50 shadow-[0_-10px_20px_rgba(0,0,0,0.02)] transition-colors">
+      {!isInputFocused && (activeTab === 'catalog' || totalAmount > 0) && (
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-6 py-4 flex items-center justify-between z-50 shadow-[0_-10px_20px_rgba(0,0,0,0.02)] transition-colors animate-in slide-in-from-bottom duration-300">
         <div>
           <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Totale Ordine (IVA Excl.)</p>
           <p className="text-xl font-black text-slate-800 dark:text-white tracking-tighter">€ {totalAmount.toFixed(2)}</p>
@@ -1197,6 +1237,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
           </button>
         </div>
       </div>
+      )}
 
       {/* OVERLAY PDF DOCUMENTO DI VENDITA */}
       {isPdfOpen && (
@@ -1255,26 +1296,6 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                   <p className="text-[10px] text-slate-400 font-bold uppercase mb-2">Destinatario</p>
                   <p className="text-sm font-bold text-slate-900 uppercase">{user.companyName}</p>
                   <p className="text-xs text-slate-600 mt-1 italic">Indirizzo di spedizione verificato B2B</p>
-                </div>
-                <div className="p-4 bg-slate-50 md:bg-transparent border border-slate-100 md:border-0 rounded-lg md:rounded-none">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase mb-2">Fornitori Coinvolti</p>
-                  <div className="text-[10px] text-slate-600 space-y-1">
-                    {(() => {
-                      const items = lastOrderItems || cart;
-                      const categories = new Set(Object.keys(items).map(id => CATALOG_PRODUCTS.find(p => p.id === id)?.category));
-                      const vendors: Record<string, string> = {
-                        'Olio': 'Olearica Valle D\'Oro S.r.l.',
-                        'Aceti': 'Acetai Modena & Tradizione S.r.l.',
-                        'Pomodori': 'RossoVerace Conservi S.p.A.',
-                        'Conserve': 'RossoVerace Conservi S.p.A.',
-                        'Tartufo': 'Tuber & Co. Selezione Tartufo S.r.l.',
-                        'Specialità': 'GustoItaliano Delizie S.r.l.'
-                      };
-                      return Array.from(categories).map(cat => cat ? (
-                        <p key={cat}>• {cat}: <span className="font-bold text-slate-900">{vendors[cat] || 'Ortuso Logistics'}</span></p>
-                      ) : null);
-                    })()}
-                  </div>
                 </div>
               </div>
 
@@ -1613,33 +1634,13 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
 
               {/* Pulsante Logout (Mobile/Generale) */}
               <div className="mt-12 mb-8">
-                {!showLogoutConfirm ? (
-                  <button
-                    onClick={() => setShowLogoutConfirm(true)}
-                    className="w-full py-4 flex items-center justify-center gap-2 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-black uppercase tracking-widest rounded-2xl hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all border border-rose-200 dark:border-rose-500/20"
-                  >
-                    <LogOut className="w-5 h-5" />
-                    Logout Account
-                  </button>
-                ) : (
-                  <div className="bg-rose-50 dark:bg-rose-950 p-6 rounded-[2rem] border border-rose-200 dark:border-rose-900 animate-in zoom-in duration-300">
-                    <p className="text-sm font-black text-rose-900 dark:text-rose-100 uppercase tracking-tighter text-center mb-4">Sei sicuro di voler uscire?</p>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        onClick={() => setShowLogoutConfirm(false)}
-                        className="py-3 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-bold rounded-xl border border-slate-200 dark:border-slate-800 text-xs"
-                      >
-                        Annulla
-                      </button>
-                      <button
-                        onClick={onLogout}
-                        className="py-3 bg-rose-600 text-white font-black uppercase tracking-widest rounded-xl shadow-lg shadow-rose-600/20 text-xs"
-                      >
-                        Sì, Esci
-                      </button>
-                    </div>
-                  </div>
-                )}
+                <button
+                  onClick={() => setShowLogoutConfirm(true)}
+                  className="w-full py-4 flex items-center justify-center gap-2 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-black uppercase tracking-widest rounded-2xl hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all border border-rose-200 dark:border-rose-500/20"
+                >
+                  <LogOut className="w-5 h-5" />
+                  Logout Account
+                </button>
               </div>
             </div>
           </div>
@@ -1840,6 +1841,38 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
             <div className="mt-8 text-center">
               <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">{zoomedProduct.packageInfo}</p>
               <h3 className="text-2xl font-black text-[#46501E] tracking-tight">{zoomedProduct.name}</h3>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* OVERLAY LOGOUT CONFIRM */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-[300] bg-slate-900/40 dark:bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-300">
+          <div
+            className="absolute inset-0"
+            onClick={() => setShowLogoutConfirm(false)}
+          />
+          <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl animate-in zoom-in-95 duration-300 border border-slate-200 dark:border-slate-800 relative z-10 text-center">
+            <div className="w-16 h-16 bg-rose-50 dark:bg-rose-900/30 rounded-full flex items-center justify-center mx-auto mb-6 border border-rose-100 dark:border-rose-800">
+              <LogOut className="w-8 h-8 text-rose-500" />
+            </div>
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mb-2">Logout</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mb-8 font-medium">Sei sicuro di voler uscire dal tuo account Ortuso?</p>
+
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="py-4 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-2xl border border-slate-200 dark:border-slate-700 active:scale-95 transition-all text-xs uppercase tracking-widest"
+              >
+                Annulla
+              </button>
+              <button
+                onClick={onLogout}
+                className="py-4 bg-rose-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-rose-600/20 active:scale-95 transition-all text-xs"
+              >
+                Sì, Esci
+              </button>
             </div>
           </div>
         </div>
