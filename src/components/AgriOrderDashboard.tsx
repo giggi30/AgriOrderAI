@@ -672,7 +672,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
               <div className="w-8 h-8 rounded-lg bg-[#707E3D]/10 flex items-center justify-center">
                 <Sparkles className="w-4 h-4 text-[#707E3D] dark:text-[#A1B06B]" />
               </div>
-              <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tighter transition-colors">Assistente AI Ortuso</h3>
+              <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tighter transition-colors">Assistente AI Ortusooo</h3>
             </div>
             <button onClick={handleClearChat} className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-lg transition-colors">Resetta</button>
           </div>
