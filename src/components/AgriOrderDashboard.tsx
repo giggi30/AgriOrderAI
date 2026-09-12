@@ -128,7 +128,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
       if (outcome === 'accepted') setShowInstallBanner(false);
       setDeferredPrompt(null);
     } else {
-      alert("Tocca i tre puntini in alto a destra e seleziona 'Installa applicazione' per usare l'App.");
+      alert("Per installare l'applicazione, tocca i tre puntini in alto a destra e seleziona 'Aggiungi a schermata Home' o 'Installa'.");
       setShowInstallBanner(false);
     }
   };
@@ -502,31 +502,43 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
       {/* OVERLAY ISTRUZIONI iOS */}
       {showIOSInstructions && (
         <div className="fixed inset-0 z-[200] bg-slate-900/80 backdrop-blur-sm flex items-end justify-center p-4 animate-in fade-in duration-300" onClick={() => setShowIOSInstructions(false)}>
-          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-in slide-in-from-bottom duration-500 mb-4" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-start mb-6">
-              <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Installa su iPhone</h3>
-              <button onClick={() => setShowIOSInstructions(false)} className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500">
-                <X className="w-5 h-5" />
-              </button>
+          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-in slide-in-from-bottom duration-500 mb-4 border border-slate-200 dark:border-slate-800" onClick={e => e.stopPropagation()}>
+
+            {/* Header */}
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-[#707E3D]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Smartphone className="w-8 h-8 text-[#707E3D]" />
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Installa su iPhone</h3>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Segui questi semplici passaggi per aggiungere l'App Ortuso alla tua schermata Home</p>
             </div>
 
-            <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center shrink-0">
-                  <Share className="w-6 h-6" />
+            {/* Istruzioni Visive */}
+            <div className="space-y-6 bg-slate-50 dark:bg-slate-950 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-xl shadow-sm flex items-center justify-center shrink-0 border border-slate-100 dark:border-slate-700">
+                  <Share className="w-5 h-5 text-blue-500" />
                 </div>
-                <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                  1. Tocca l'icona <span className="text-blue-600 font-black">Condividi</span> nella barra di Safari in basso.
-                </p>
+                <div>
+                  <p className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-tight">
+                    1. Tocca il tasto <span className="text-blue-600 font-extrabold">Condividi</span>
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-1">Si trova nella barra in basso di Safari.</p>
+                </div>
               </div>
 
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-2xl flex items-center justify-center shrink-0">
-                  <PlusSquare className="w-6 h-6" />
+              <div className="w-full h-px bg-slate-200 dark:bg-slate-800" />
+
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-xl shadow-sm flex items-center justify-center shrink-0 border border-slate-100 dark:border-slate-700">
+                  <PlusSquare className="w-5 h-5 text-slate-700 dark:text-slate-300" />
                 </div>
-                <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                  2. Scorri verso il basso e tocca <span className="text-amber-600 font-black">"Aggiungi alla schermata Home"</span>.
-                </p>
+                <div>
+                  <p className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-tight">
+                    2. Scegli <span className="font-extrabold text-[#707E3D]">"Aggiungi alla schermata Home"</span>
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-1">Scorri le opzioni verso il basso per trovarlo.</p>
+                </div>
               </div>
             </div>
 
@@ -535,10 +547,12 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                 setShowIOSInstructions(false);
                 localStorage.setItem('installBannerDismissed', 'true');
               }}
-              className="w-full mt-10 py-4 bg-[#707E3D] text-white font-black uppercase tracking-widest rounded-2xl shadow-lg"
+              className="w-full mt-8 py-4 bg-[#707E3D] hover:bg-[#5A6531] text-white font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-[#707E3D]/20 active:scale-95 transition-all text-sm"
             >
               Ho capito
             </button>
+
+            <p className="text-center text-[10px] text-slate-400 mt-4 font-bold uppercase tracking-widest">Ortuso Smart B2B Experience</p>
           </div>
         </div>
       )}
