@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CATALOG_PRODUCTS } from '@/lib/productsData';
 import { processUserMessage } from '@/lib/agriOrderService';
-import { Send, Bot, Sparkles, ShoppingBag, FileText, RefreshCw, CheckCheck, Minus, Trash2, Plus, X, Printer, Mail, Sun, Moon, Trophy, Maximize2, PlusCircle, History, LogOut, Smartphone, Download, Share, PlusSquare } from 'lucide-react';
+import { Send, Bot, Sparkles, ShoppingBag, FileText, RefreshCw, CheckCheck, Minus, Trash2, Plus, X, Printer, Mail, Sun, Moon, Trophy, Maximize2, PlusCircle, History, LogOut, Smartphone, Download, Share, PlusSquare, ShieldCheck } from 'lucide-react';
 import { Content } from '@google/generative-ai';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
@@ -58,6 +58,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [viewportHeight, setViewportHeight] = useState<string | number>('100dvh');
+  const [showAllOrders, setShowAllOrders] = useState(false);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const isFirstRender = useRef(true);
@@ -583,52 +584,9 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
         </div>
       )}
 
-      {/* MOBILE HEADER (Screenshot style) */}
-      <div className="md:hidden flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 sticky top-0 z-50 transition-colors shrink-0">
-        <div className="flex flex-col">
-          <img
-            src="/images/logo_ortuso.png"
-            alt="Ortuso Logo"
-            className={`h-8 w-auto object-contain transition-all ${isDarkMode ? 'brightness-110 contrast-125' : 'brightness-100 contrast-100'}`}
-          />
-          <p className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-0.5">Smart B2B Portal</p>
-        </div>
-        <div
-          onClick={() => setIsProfileOpen(true)}
-          className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 pl-1 pr-3 py-1 rounded-full shadow-sm active:scale-95 transition-transform"
-        >
-          <div className="w-8 h-8 rounded-full bg-[#707E3D]/10 border border-[#707E3D]/20 flex items-center justify-center text-[#707E3D] dark:text-[#A1B06B] text-[10px] font-black">
-            {user.companyName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-          </div>
-          <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{user.companyName}</span>
-        </div>
-      </div>
+      {/* MOBILE HEADER (Screenshot style) - REMOVED FROM TOP LEVEL, MOVED INSIDE SCROLLABLE COLUMNS FOR MOBILE SCROLL EFFECT */}
 
-      {/* MOBILE TABS SWITCHER */}
-      <div className="md:hidden px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-50 dark:border-slate-800 flex-none transition-colors shrink-0">
-        <div className="bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-2xl flex border border-slate-200 dark:border-slate-700 shadow-inner">
-          <button
-            onClick={() => setActiveTab('chat')}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
-              activeTab === 'chat'
-                ? 'bg-white dark:bg-slate-700 text-[#707E3D] dark:text-[#A1B06B] shadow-md ring-2 ring-[#707E3D]/10'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
-            }`}
-          >
-            <Bot className="w-4 h-4" /> Assistente AI
-          </button>
-          <button
-            onClick={() => setActiveTab('catalog')}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
-              activeTab === 'catalog'
-                ? 'bg-white dark:bg-slate-700 text-[#707E3D] dark:text-[#A1B06B] shadow-md ring-2 ring-[#707E3D]/10'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
-            }`}
-          >
-            <ShoppingBag className="w-4 h-4" /> Catalogo
-          </button>
-        </div>
-      </div>
+      {/* MOBILE TABS SWITCHER - REMOVED FROM TOP LEVEL, MOVED INSIDE SCROLLABLE COLUMNS FOR MOBILE SCROLL EFFECT */}
 
 
       {/* Top Header (Desktop Only) */}
@@ -693,16 +651,6 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
           activeTab === 'chat' ? 'flex flex-1 min-h-0' : 'hidden lg:flex'
         } ${activeTab === 'chat' ? 'rounded-none border-0 shadow-none md:border md:rounded-2xl md:shadow-xl' : ''}`}>
 
-          {/* Mobile Chat Title Bar */}
-          <div className="md:hidden flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 transition-colors shrink-0">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#707E3D]/10 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-[#707E3D] dark:text-[#A1B06B]" />
-              </div>
-              <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tighter transition-colors">Assistente AI Ortuso</h3>
-            </div>
-            <button onClick={handleClearChat} className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-lg transition-colors">Resetta</button>
-          </div>
           {/* Chat Header (Desktop Only) */}
           <div className="hidden md:flex p-4 bg-slate-50/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 items-center justify-between">
             <div className="flex items-center gap-3">
@@ -727,6 +675,64 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
 
           {/* Chat Messages Area */}
           <div className="flex-1 p-4 md:p-6 pb-6 md:pb-6 overflow-y-auto space-y-3 md:space-y-6 bg-slate-50/30 dark:bg-slate-950/40 md:bg-slate-50/30 md:dark:bg-slate-950/40">
+
+            {/* MOBILE ONLY HEADER & TABS & TITLE BAR - SCROLLABLE */}
+            <div className="md:hidden -mx-4 -mt-4 mb-6 transition-colors">
+              <div className="flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 transition-colors">
+                <div className="flex flex-col">
+                  <img
+                    src="/images/logo_ortuso.png"
+                    alt="Ortuso Logo"
+                    className={`h-8 w-auto object-contain transition-all ${isDarkMode ? 'brightness-110 contrast-125' : 'brightness-100 contrast-100'}`}
+                  />
+                  <p className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-0.5">Smart B2B Portal</p>
+                </div>
+                <div
+                  onClick={() => setIsProfileOpen(true)}
+                  className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 pl-1 pr-3 py-1 rounded-full shadow-sm active:scale-95 transition-transform"
+                >
+                  <div className="w-8 h-8 rounded-full bg-[#707E3D]/10 border border-[#707E3D]/20 flex items-center justify-center text-[#707E3D] dark:text-[#A1B06B] text-[10px] font-black">
+                    {user.companyName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                  </div>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{user.companyName}</span>
+                </div>
+              </div>
+
+              <div className="px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-50 dark:border-slate-800 transition-colors">
+                <div className="bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-2xl flex border border-slate-200 dark:border-slate-700 shadow-inner">
+                  <button
+                    onClick={() => setActiveTab('chat')}
+                    className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+                      activeTab === 'chat'
+                        ? 'bg-white dark:bg-slate-700 text-[#707E3D] dark:text-[#A1B06B] shadow-md ring-2 ring-[#707E3D]/10'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
+                    }`}
+                  >
+                    <Bot className="w-4 h-4" /> Assistente AI
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('catalog')}
+                    className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+                      activeTab === 'catalog'
+                        ? 'bg-white dark:bg-slate-700 text-[#707E3D] dark:text-[#A1B06B] shadow-md ring-2 ring-[#707E3D]/10'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
+                    }`}
+                  >
+                    <ShoppingBag className="w-4 h-4" /> Catalogo
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 transition-colors">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-[#707E3D]/10 flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-[#707E3D] dark:text-[#A1B06B]" />
+                  </div>
+                  <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tighter transition-colors">Assistente AI Ortuso</h3>
+                </div>
+                <button onClick={handleClearChat} className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-lg transition-colors">Resetta</button>
+              </div>
+            </div>
             <div className="md:hidden absolute inset-0 bg-[#F8FAFC] dark:bg-slate-950 pointer-events-none -z-10 transition-colors" />
             {messages.map((m, idx) => (
               <div key={idx} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -944,35 +950,6 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
           activeTab === 'catalog' ? 'flex h-full' : 'hidden lg:flex'
         } ${activeTab === 'catalog' ? 'rounded-none border-0 shadow-none md:border md:rounded-2xl md:shadow-xl' : ''}`}>
 
-          {/* Categoria Filters (Mobile Header Style) */}
-          <div className="md:hidden px-4 py-4 bg-white dark:bg-slate-900 border-b border-slate-50 dark:border-slate-800 flex flex-col gap-3 transition-colors">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 flex items-center gap-2 px-2">
-              <ShoppingBag className="w-3.5 h-3.5 text-slate-500" /> Catalogo Prodotti B2B
-            </h3>
-            <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-xl border border-slate-100 dark:border-slate-700 overflow-x-auto no-scrollbar scroll-smooth">
-              {[
-                { name: 'Tutti', icon: null },
-                { name: 'Olio', icon: null },
-                { name: 'Aceti', icon: null },
-                { name: 'Pomodori', icon: null },
-                { name: 'Tartufo', icon: null }
-              ].map(cat => (
-                <button
-                  key={cat.name}
-                  translate="no"
-                  onClick={() => setActiveCategory(cat.name)}
-                  className={`flex-1 text-[11px] px-3 py-2 rounded-lg transition-all font-bold whitespace-nowrap flex items-center justify-center gap-1 notranslate ${
-                    activeCategory === cat.name
-                      ? 'bg-[#5A6531] text-white shadow-sm'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-                  }`}
-                >
-                  {cat.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Categoria Filters (Desktop - Reverted) */}
           <div className="hidden md:flex items-center justify-between mb-4 border-b border-slate-200 dark:border-slate-800 pb-3">
             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
@@ -996,6 +973,82 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
 
           {/* Products List (Mobile Style) */}
           <div className="flex-1 overflow-y-auto px-4 md:px-2 py-6 space-y-4 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
+
+            {/* MOBILE ONLY HEADER & TABS & CATEGORIES - SCROLLABLE */}
+            <div className="md:hidden -mx-4 -mt-6 mb-6 transition-colors">
+              <div className="flex items-center justify-between px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 transition-colors">
+                <div className="flex flex-col">
+                  <img
+                    src="/images/logo_ortuso.png"
+                    alt="Ortuso Logo"
+                    className={`h-8 w-auto object-contain transition-all ${isDarkMode ? 'brightness-110 contrast-125' : 'brightness-100 contrast-100'}`}
+                  />
+                  <p className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-0.5">Smart B2B Portal</p>
+                </div>
+                <div
+                  onClick={() => setIsProfileOpen(true)}
+                  className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 pl-1 pr-3 py-1 rounded-full shadow-sm active:scale-95 transition-transform"
+                >
+                  <div className="w-8 h-8 rounded-full bg-[#707E3D]/10 border border-[#707E3D]/20 flex items-center justify-center text-[#707E3D] dark:text-[#A1B06B] text-[10px] font-black">
+                    {user.companyName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                  </div>
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{user.companyName}</span>
+                </div>
+              </div>
+
+              <div className="px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-50 dark:border-slate-800 transition-colors">
+                <div className="bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-2xl flex border border-slate-200 dark:border-slate-700 shadow-inner">
+                  <button
+                    onClick={() => setActiveTab('chat')}
+                    className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+                      activeTab === 'chat'
+                        ? 'bg-white dark:bg-slate-700 text-[#707E3D] dark:text-[#A1B06B] shadow-md ring-2 ring-[#707E3D]/10'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
+                    }`}
+                  >
+                    <Bot className="w-4 h-4" /> Assistente AI
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('catalog')}
+                    className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+                      activeTab === 'catalog'
+                        ? 'bg-white dark:bg-slate-700 text-[#707E3D] dark:text-[#A1B06B] shadow-md ring-2 ring-[#707E3D]/10'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700'
+                    }`}
+                  >
+                    <ShoppingBag className="w-4 h-4" /> Catalogo
+                  </button>
+                </div>
+              </div>
+
+              <div className="px-4 py-4 bg-white dark:bg-slate-900 border-b border-slate-50 dark:border-slate-800 flex flex-col gap-3 transition-colors">
+                <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 flex items-center gap-2 px-2">
+                  <ShoppingBag className="w-3.5 h-3.5 text-slate-500" /> Catalogo Prodotti B2B
+                </h3>
+                <div className="flex bg-slate-50 dark:bg-slate-800 p-1 rounded-xl border border-slate-100 dark:border-slate-700 overflow-x-auto no-scrollbar scroll-smooth">
+                  {[
+                    { name: 'Tutti', icon: null },
+                    { name: 'Olio', icon: null },
+                    { name: 'Aceti', icon: null },
+                    { name: 'Pomodori', icon: null },
+                    { name: 'Tartufo', icon: null }
+                  ].map(cat => (
+                    <button
+                      key={cat.name}
+                      translate="no"
+                      onClick={() => setActiveCategory(cat.name)}
+                      className={`flex-1 text-[11px] px-3 py-2 rounded-lg transition-all font-bold whitespace-nowrap flex items-center justify-center gap-1 notranslate ${
+                        activeCategory === cat.name
+                          ? 'bg-[#5A6531] text-white shadow-sm'
+                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                      }`}
+                    >
+                      {cat.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
             {filteredProducts.map(product => {
               const qty = cart[product.id] || 0;
               const isSelected = qty > 0;
@@ -1219,10 +1272,12 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
 
       {/* MOBILE STICKY FOOTER (Screenshot Style) */}
       {!isInputFocused && (activeTab === 'catalog' || totalAmount > 0) && (
-        <div className="md:hidden shrink-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-6 py-4 flex items-center justify-between shadow-[0_-10px_20px_rgba(0,0,0,0.02)] transition-colors animate-in slide-in-from-bottom duration-300">
+        <div className="md:hidden shrink-0 bg-white dark:bg-slate-900 border-t border-slate-50 dark:border-slate-800 px-6 py-4 flex items-center justify-between shadow-[0_-15px_35px_rgba(0,0,0,0.05)] transition-colors animate-in slide-in-from-bottom duration-300 z-40">
         <div>
-          <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Totale Ordine (IVA Excl.)</p>
-          <p className="text-xl font-black text-slate-800 dark:text-white tracking-tighter">€ {totalAmount.toFixed(2)}</p>
+          <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Totale Documento (IVA Incl.)</p>
+          <p className="text-xl font-black text-slate-800 dark:text-white tracking-tighter">
+            € {((totalAmount * (1 - currentLevel.discountPct / 100)) * 1.22).toFixed(2)}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -1613,7 +1668,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
 
                 {orders.length > 0 ? (
                   <div className="space-y-3">
-                    {[...orders].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(order => (
+                    {[...orders].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, showAllOrders ? orders.length : 5).map(order => (
                       <div key={order.id} className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-4 rounded-2xl flex items-center justify-between hover:border-[#707E3D]/30 transition-colors group">
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-[#707E3D]">
@@ -1635,6 +1690,15 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                         </div>
                       </div>
                     ))}
+
+                    {orders.length > 5 && (
+                      <button
+                        onClick={() => setShowAllOrders(!showAllOrders)}
+                        className="w-full py-2 text-[10px] font-black uppercase tracking-widest text-[#707E3D] hover:text-[#5A6531] transition-colors border border-dashed border-[#707E3D]/30 rounded-xl mt-2"
+                      >
+                        {showAllOrders ? 'Mostra Meno' : 'Mostra Tutti'}
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <div className="text-center py-8 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
@@ -1644,7 +1708,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
               </div>
 
               {/* Pulsante Logout (Mobile/Generale) */}
-              <div className="mt-12 mb-8">
+              <div className="mt-12 mb-8 flex flex-col gap-4">
                 <button
                   onClick={() => setShowLogoutConfirm(true)}
                   className="w-full py-4 flex items-center justify-center gap-2 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 font-black uppercase tracking-widest rounded-2xl hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-all border border-rose-200 dark:border-rose-500/20"
@@ -1652,6 +1716,12 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                   <LogOut className="w-5 h-5" />
                   Logout Account
                 </button>
+                <Link
+                  href="/privacy"
+                  className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-[#707E3D] transition-colors py-2"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" /> Privacy Policy & GDPR
+                </Link>
               </div>
             </div>
           </div>

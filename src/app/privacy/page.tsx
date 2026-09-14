@@ -24,64 +24,65 @@ export default function PrivacyPolicy() {
 
         <div className="space-y-12">
           <section>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
               <Lock className="w-6 h-6 text-emerald-600 dark:text-emerald-500" />
-              1. Titolare del Trattamento dei Dati
+              1. Titolare e Responsabile del Trattamento
             </h2>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm">
-              <p className="font-bold text-slate-900 dark:text-white">Olearia Ortuso Srl</p>
-              <p>Via Colle Delle Api, 44</p>
-              <p>86100 Campobasso (CB) – Molise – Italy</p>
-              <p className="mt-4 flex items-center gap-2">
-                <Mail className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span className="font-semibold text-emerald-600 dark:text-emerald-400">info@ortuso.com</span>
-              </p>
-              <p>Tel: +39 0874.62147</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Data Controller */}
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm">
+                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-500 block mb-2">Titolare del Trattamento (Controller)</span>
+                <p className="font-bold text-slate-900 dark:text-white text-lg">Olearia Ortuso Srl</p>
+                <p className="text-sm text-slate-500">Via Colle Delle Api, 44</p>
+                <p className="text-sm text-slate-500">86100 Campobasso (CB) – Molise – Italy</p>
+                <p className="mt-4 flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">info@ortuso.com</span>
+                </p>
+                <p className="text-xs text-slate-400 mt-4 leading-relaxed italic">
+                  Il Titolare raccoglie ed elabora i dati per finalità di vendita, fatturazione e gestione dei programmi fedeltà.
+                </p>
+              </div>
+
+              {/* Data Processor */}
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm">
+                <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-500 block mb-2">Responsabile del Trattamento (Processor)</span>
+                <p className="font-bold text-slate-900 dark:text-white text-lg">I-MARK Srl</p>
+                <p className="text-sm text-slate-500">Via M. Bologna, 15</p>
+                <p className="text-sm text-slate-500">86100 CAMPOBASSO</p>
+                <p className="text-xs text-slate-500 font-mono">P.IVA 01782790701</p>
+                <p className="mt-4 flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  <span className="font-semibold text-blue-600 dark:text-blue-400">info@i-mark.it</span>
+                </p>
+                <p className="text-xs text-slate-400 mt-4 leading-relaxed italic">
+                  I-MARK tratta i dati esclusivamente per conto del Titolare al fine di garantire il funzionamento tecnico dell'infrastruttura web/app.
+                </p>
+              </div>
             </div>
           </section>
 
           <section>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
               <Eye className="w-6 h-6 text-emerald-600 dark:text-emerald-500" />
-              2. Tipologie di Dati raccolti
+              2. Finalità e Modalità del Trattamento
             </h2>
-            <p className="mb-4">
-              Fra i Dati Personali raccolti da questo sito, in modo autonomo o tramite terze parti, ci sono:
-            </p>
-            <ul className="list-disc ml-6 space-y-2 text-slate-600 dark:text-slate-300">
-              <li>Dati di utilizzo e Cookie (per il funzionamento tecnico del portale).</li>
-              <li>Nome, Cognome ed Email (forniti volontariamente per la gestione degli ordini).</li>
-              <li>Dati relativi alla transazione e alla logistica degli ordini B2B.</li>
-              <li>Indirizzi IP e identificativi dei dispositivi.</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-              <FileText className="w-6 h-6 text-emerald-600 dark:text-emerald-500" />
-              3. Finalità del Trattamento
-            </h2>
-            <p className="mb-4">
-              I Dati dell'Utente sono raccolti per consentire al Titolare di fornire i propri Servizi, nonché per le seguenti finalità:
+            <p className="mb-4 text-slate-600 dark:text-slate-300">
+              Frantoio Ortuso, in qualità di Titolare, decide le finalità e le modalità del trattamento dei dati per i seguenti scopi:
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
-                <h3 className="font-bold text-emerald-600 dark:text-emerald-400 mb-2">Gestione Ordini</h3>
-                <p className="text-sm">Esecuzione del contratto di vendita e logistica dei prodotti agroalimentari.</p>
+                <h3 className="font-bold text-emerald-600 dark:text-emerald-400 mb-2 uppercase text-xs tracking-widest">Vendita & Logistica</h3>
+                <p className="text-sm">Gestione dell'ordine, spedizione della merce e adempimenti contabili/fiscali.</p>
               </div>
               <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
-                <h3 className="font-bold text-emerald-600 dark:text-emerald-400 mb-2">Assistenza AI</h3>
-                <p className="text-sm">Interazione con AgriOrder AI per facilitare il processo di ordinazione.</p>
-              </div>
-              <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
-                <h3 className="font-bold text-emerald-600 dark:text-emerald-400 mb-2">Sicurezza</h3>
-                <p className="text-sm">Prevenzione di frodi e protezione del sistema da accessi non autorizzati.</p>
-              </div>
-              <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 p-4 rounded-xl shadow-sm">
-                <h3 className="font-bold text-emerald-600 dark:text-emerald-400 mb-2">Statistica</h3>
-                <p className="text-sm">Analisi dei flussi di vendita (in forma aggregata e anonima).</p>
+                <h3 className="font-bold text-emerald-600 dark:text-emerald-400 mb-2 uppercase text-xs tracking-widest">Fidelity & Profilazione</h3>
+                <p className="text-sm">Gestione dei punti fedeltà, sconti personalizzati e analisi delle abitudini di acquisto.</p>
               </div>
             </div>
+            <p className="mt-6 text-sm text-slate-500 italic">
+              L'infrastruttura tecnologica è fornita da I-MARK Srl, che opera come Responsabile del Trattamento garantendo la sicurezza tecnica dei dati.
+            </p>
           </section>
 
           <section>
