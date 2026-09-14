@@ -18,6 +18,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
+  themeColor: "#707E3D",
 };
 
 export const metadata: Metadata = {
@@ -28,7 +29,7 @@ export const metadata: Metadata = {
       { url: "/images/olive-oil-icon.png", type: "image/png" },
     ],
     shortcut: "/images/olive-oil-icon.png",
-    apple: "/images/olive-oil-icon.png",
+    apple: "/apple-touch-icon-192.png",
   },
   manifest: "/manifest.json",
   other: {
