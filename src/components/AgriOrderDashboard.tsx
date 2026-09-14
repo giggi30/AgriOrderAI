@@ -57,6 +57,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [viewportHeight, setViewportHeight] = useState<string | number>('100dvh');
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const isFirstRender = useRef(true);
@@ -121,12 +122,21 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   useEffect(() => {
     if (typeof window !== 'undefined' && window.visualViewport) {
       const handleResize = () => {
+        setViewportHeight(window.visualViewport!.height);
         if (isInputFocused) {
-          scrollToBottom();
+          // Scroll istantaneo per evitare l'effetto "lento" su iOS
+          scrollToBottom(true);
+          // Forza la pagina a non scorrere esternamente
+          window.scrollTo(0, 0);
         }
       };
       window.visualViewport.addEventListener('resize', handleResize);
-      return () => window.visualViewport?.removeEventListener('resize', handleResize);
+      window.visualViewport.addEventListener('scroll', handleResize);
+      handleResize();
+      return () => {
+        window.visualViewport?.removeEventListener('resize', handleResize);
+        window.visualViewport?.removeEventListener('scroll', handleResize);
+      };
     }
   }, [isInputFocused]);
 
@@ -317,8 +327,14 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
     }
   };
 
-  const scrollToBottom = () => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  // Calcolo totale ordine
+  const totalAmount = Object.entries(cart).reduce((sum, [id, qty]) => {
+    const item = CATALOG_PRODUCTS.find(p => p.id === id);
+    return sum + (item ? item.price * qty : 0);
+  }, 0);
+
+  const scrollToBottom = (instant = false) => {
+    chatEndRef.current?.scrollIntoView({ behavior: instant ? 'auto' : 'smooth', block: 'end' });
   };
 
   useEffect(() => {
@@ -326,11 +342,11 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
       isFirstRender.current = false;
       return;
     }
-    // Esegui lo scroll solo se abbiamo aggiunto messaggi oltre a quello iniziale
-    if (messages.length > 1 || loading) {
+    // Esegui lo scroll solo se abbiamo aggiunto messaggi oltre a quello iniziale o se compare il bottone ordine
+    if (messages.length > 1 || loading || (isAiOrder && totalAmount > 0)) {
       scrollToBottom();
     }
-  }, [messages, loading]);
+  }, [messages, loading, isAiOrder, totalAmount]);
 
   // Gestione aggiunta manuale dal catalogo
   const handleManualToggle = (productId: string) => {
@@ -447,12 +463,6 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
     setMessages(prev => [...prev, { sender: 'ai', text: res.responseText }]);
   };
 
-  // Calcolo totale ordine
-  const totalAmount = Object.entries(cart).reduce((sum, [id, qty]) => {
-    const item = CATALOG_PRODUCTS.find(p => p.id === id);
-    return sum + (item ? item.price * qty : 0);
-  }, 0);
-
   const filteredProducts = activeCategory === 'Tutti'
     ? CATALOG_PRODUCTS
     : CATALOG_PRODUCTS.filter(p => p.category === activeCategory);
@@ -479,7 +489,10 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
   }));
 
   return (
-    <div className="w-full h-[100dvh] md:h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans md:p-6 flex flex-col transition-colors duration-300">
+    <div
+      className="w-full h-[100dvh] md:h-screen overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans md:p-6 flex flex-col transition-colors duration-300"
+      style={{ height: typeof viewportHeight === 'number' ? `${viewportHeight}px` : viewportHeight }}
+    >
       {/* APP INSTALL BANNER (Mobile Only) */}
       {showInstallBanner && (
         <div className="md:hidden bg-[#707E3D] text-white px-5 py-4 flex items-center justify-between gap-3 animate-in slide-in-from-top duration-700 z-[60] shadow-xl border-b border-white/10">
@@ -713,7 +726,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
           </div>
 
           {/* Chat Messages Area */}
-          <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-3 md:space-y-6 bg-slate-50/30 dark:bg-slate-950/40 md:bg-slate-50/30 md:dark:bg-slate-950/40">
+          <div className="flex-1 p-4 md:p-6 pb-6 md:pb-6 overflow-y-auto space-y-3 md:space-y-6 bg-slate-50/30 dark:bg-slate-950/40 md:bg-slate-50/30 md:dark:bg-slate-950/40">
             <div className="md:hidden absolute inset-0 bg-[#F8FAFC] dark:bg-slate-950 pointer-events-none -z-10 transition-colors" />
             {messages.map((m, idx) => (
               <div key={idx} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -811,13 +824,10 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
             <div ref={chatEndRef} />
           </div>
 
-          {/* Quick Prompts (Mobile) - Fissati sopra l'input */}
+          {/* Quick Prompts (Mobile) */}
           <div
-            className={`md:hidden px-6 pt-1 pb-1 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm fixed left-0 right-0 z-40 transition-all ${
-              (!isInputFocused && totalAmount > 0) ? 'bottom-[148px]' : 'bottom-[76px]'
-            }`}
+            className="md:hidden px-6 pt-2 pb-2 bg-white dark:bg-slate-900 shrink-0 border-t border-slate-100 dark:border-slate-800"
           >
-
             <div className="flex gap-2 overflow-x-auto no-scrollbar">
               <button
                 onClick={handleRecurringOrder}
@@ -879,7 +889,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
           {/* Chat Input Bar (Mobile) */}
           <form
             onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-            className={`md:hidden p-4 pt-1 bg-white/95 dark:bg-slate-900/95 flex gap-2 fixed left-0 right-0 z-40 transition-all ${(!isInputFocused && totalAmount > 0) ? 'bottom-[72px]' : 'bottom-0'}`}
+            className="md:hidden p-4 pt-1 bg-white dark:bg-slate-900 flex gap-2 shrink-0 border-t border-slate-50 dark:border-slate-800"
           >
             <div className="flex-1 relative">
               <input
@@ -893,7 +903,10 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
                 onChange={(e) => setInput(e.target.value)}
                 onFocus={() => {
                   setIsInputFocused(true);
-                  setTimeout(scrollToBottom, 300);
+                  // Scroll istantaneo immediato e dopo un breve delay per assicurarci che la tastiera sia salita
+                  scrollToBottom(true);
+                  setTimeout(() => scrollToBottom(true), 100);
+                  window.scrollTo(0, 0);
                 }}
                 onBlur={() => setIsInputFocused(false)}
                 placeholder="Scrivi..."
@@ -905,8 +918,6 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
             </div>
           </form>
 
-          {/* Spacer per i blocchi fissi su mobile (input + comandi rapidi + eventuale carrello) */}
-          <div className={`md:hidden flex-none transition-all ${(!isInputFocused && totalAmount > 0) ? 'h-[160px]' : 'h-[110px]'}`} />
 
           {/* Chat Input Bar (Desktop - Reverted) */}
           <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="hidden md:flex p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 gap-2">
@@ -984,7 +995,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
           </div>
 
           {/* Products List (Mobile Style) */}
-          <div className="flex-1 overflow-y-auto px-4 md:px-2 py-6 space-y-4 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 mb-20 md:mb-0">
+          <div className="flex-1 overflow-y-auto px-4 md:px-2 py-6 space-y-4 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
             {filteredProducts.map(product => {
               const qty = cart[product.id] || 0;
               const isSelected = qty > 0;
@@ -1208,7 +1219,7 @@ export default function AgriOrderDashboard({ user, onLogout }: AgriOrderDashboar
 
       {/* MOBILE STICKY FOOTER (Screenshot Style) */}
       {!isInputFocused && (activeTab === 'catalog' || totalAmount > 0) && (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-6 py-4 flex items-center justify-between z-50 shadow-[0_-10px_20px_rgba(0,0,0,0.02)] transition-colors animate-in slide-in-from-bottom duration-300">
+        <div className="md:hidden shrink-0 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 px-6 py-4 flex items-center justify-between shadow-[0_-10px_20px_rgba(0,0,0,0.02)] transition-colors animate-in slide-in-from-bottom duration-300">
         <div>
           <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Totale Ordine (IVA Excl.)</p>
           <p className="text-xl font-black text-slate-800 dark:text-white tracking-tighter">€ {totalAmount.toFixed(2)}</p>
